@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Sentinel | URL Scanner</title>
+  <link rel="icon" href="static/assets/API_Sentinel_Favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f2f2f7;
+  --surface:      #ffffff;
+  --surface-2:    #f9f9fb;
+  --border:       rgba(0,0,0,0.07);
+  --text:         #1c1c1e;
+  --text-2:       #3a3a3c;
+  --muted:        #8e8e93;
+  --sidebar-w:    240px;
+
+  --blue:         #007aff;
+  --blue-soft:    #e8f1ff;
+  --green:        #34c759;
+  --green-soft:   #e5f8eb;
+  --amber:        #ff9f0a;
+  --amber-soft:   #fff4e0;
+  --red:          #ff3b30;
+  --red-soft:     #ffeceb;
+  --purple:       #af52de;
+  --purple-soft:  #f5edff;
+  --teal:         #32ade6;
+  --teal-soft:    #e3f5fd;
+  --indigo:       #5856d6;
+  --indigo-soft:  #eeeeff;
+
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'DM Mono', ui-monospace, monospace;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100; padding: 0 0 24px 0;
+}
+
+.sidebar-brand {
+  display: block;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.brand-icon {
+  width: 36px; height: 36px; background: var(--blue);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
+}
+
+.brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
+.brand-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+.sidebar-section { padding: 20px 12px 4px; }
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 8px; margin-bottom: 4px;
+}
+
+.nav-item { list-style: none; }
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 500; color: var(--text-2);
+  text-decoration: none; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
+}
+.nav-link:hover  { background: var(--bg); color: var(--text); }
+.nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
+.nav-link.active .nav-icon { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
+.sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.sidebar-footer-text a { color: var(--blue); text-decoration: none; }
+
+/* ─── MAIN ───────────────────────────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 90;
+}
+
+.topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+.topbar-left p  { font-size: 12px; color: var(--muted); }
+.topbar-right   { display: flex; align-items: center; gap: 12px; }
+.topbar-time    { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+/* ─── PAGE CONTENT ───────────────────────────────────────────────────────── */
+.page-content { padding: 28px 32px; flex: 1; }
+
+/* ─── SCANNER INPUT CARD ─────────────────────────────────────────────────── */
+.scanner-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 20px;
+  animation: fadeUp 0.35s ease both;
+}
+
+.scanner-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+}
+
+.scanner-header-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--blue-soft); color: var(--blue);
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+}
+
+.scanner-header-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.scanner-header-sub   { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+.scanner-body { padding: 24px; }
+
+/* ─── INPUT ROW ──────────────────────────────────────────────────────────── */
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.url-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.url-input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.url-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px 0 38px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--surface-2);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.url-input::placeholder { color: var(--muted); font-family: var(--font); }
+
+.url-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+  background: var(--surface);
+}
+
+.btn-scan {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,122,255,0.28);
+  flex-shrink: 0;
+}
+
+.btn-scan:hover  { background: #0066dd; box-shadow: 0 4px 16px rgba(0,122,255,0.38); transform: translateY(-1px); }
+.btn-scan:active { transform: translateY(0); }
+
+.btn-scan.scanning { opacity: 0.75; pointer-events: none; }
+
+/* ─── SCAN FEEDBACK MESSAGE ──────────────────────────────────────────────── */
+.scan-msg {
+  display: none;
+  margin-top: 14px;
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 13px; font-weight: 500;
+  align-items: center; gap: 8px;
+}
+.scan-msg.visible { display: flex; }
+.scan-msg.info    { background: var(--blue-soft);  color: var(--blue); }
+.scan-msg.success { background: var(--green-soft); color: #1d8a3a; }
+.scan-msg.error   { background: var(--red-soft);   color: #c0291f; }
+.scan-msg.warn    { background: var(--amber-soft); color: #c7760a; }
+
+/* ─── RESULTS GRID ───────────────────────────────────────────────────────── */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ─── SECTION CARDS ──────────────────────────────────────────────────────── */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeUp 0.4s ease both;
+}
+
+.section-card:nth-child(1) { animation-delay: 0.10s; }
+.section-card:nth-child(2) { animation-delay: 0.15s; }
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.title-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+
+.section-body { padding: 20px; }
+
+/* ─── VERDICT DISPLAY ────────────────────────────────────────────────────── */
+.verdict-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  transition: background 0.3s;
+}
+
+.verdict-display.state-idle     { background: var(--surface-2); border: 1.5px dashed var(--border); }
+.verdict-display.state-safe     { background: var(--green-soft); }
+.verdict-display.state-suspicious { background: var(--amber-soft); }
+.verdict-display.state-malicious  { background: var(--red-soft); }
+
+.verdict-icon-wrap {
+  width: 56px; height: 56px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin-bottom: 12px;
+}
+
+.state-idle       .verdict-icon-wrap { background: rgba(0,0,0,0.05);        color: var(--muted); }
+.state-safe       .verdict-icon-wrap { background: rgba(52,199,89,0.15);    color: #1d8a3a; }
+.state-suspicious .verdict-icon-wrap { background: rgba(255,159,10,0.15);   color: #c7760a; }
+.state-malicious  .verdict-icon-wrap { background: rgba(255,59,48,0.15);    color: #c0291f; }
+
+.verdict-label {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.state-idle       .verdict-label { color: var(--muted); }
+.state-safe       .verdict-label { color: #1d8a3a; }
+.state-suspicious .verdict-label { color: #c7760a; }
+.state-malicious  .verdict-label { color: #c0291f; }
+
+.verdict-sub { font-size: 12px; color: var(--muted); }
+
+/* ─── STAT ROWS ──────────────────────────────────────────────────────────── */
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child  { border-bottom: none; padding-bottom: 0; }
+.stat-row:first-child { padding-top: 0; }
+
+.stat-key { font-size: 12px; font-weight: 500; color: var(--muted); }
+.stat-val { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+
+/* ─── REASON BOX ─────────────────────────────────────────────────────────── */
+.reason-box {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13px; font-weight: 500; line-height: 1.5;
+  margin-top: 14px;
+}
+.reason-idle     { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+.reason-safe     { background: var(--green-soft);  color: #1d8a3a; }
+.reason-suspicious { background: var(--amber-soft); color: #c7760a; }
+.reason-malicious  { background: var(--red-soft);   color: #c0291f; }
+
+.reason-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 4px; opacity: 0.7;
+}
+
+/* ─── STATUS BADGE ───────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+.badge-safe       { background: var(--green-soft);  color: #1d8a3a; }
+.badge-suspicious { background: var(--amber-soft);  color: #c7760a; }
+.badge-malicious  { background: var(--red-soft);    color: #c0291f; }
+.badge-unknown    { background: #f2f2f7;             color: var(--muted); }
+
+.badge-safe       .badge-dot { background: var(--green); }
+.badge-suspicious .badge-dot { background: var(--amber); }
+.badge-malicious  .badge-dot { background: var(--red); }
+.badge-unknown    .badge-dot { background: var(--muted); }
+
+/* ─── FEATURE TABLE ──────────────────────────────────────────────────────── */
+.feature-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+
+.feature-table thead th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em;
+  font-weight: 700; color: var(--muted);
+  padding: 0 16px 8px; text-align: left;
+}
+
+.feature-table tbody tr { border-top: 1px solid var(--border); transition: background 0.12s; }
+.feature-table tbody tr:hover { background: var(--surface-2); }
+
+.feature-table td { padding: 9px 16px; vertical-align: middle; color: var(--text-2); }
+.feature-table td:first-child { font-weight: 500; color: var(--text); }
+.feature-table td:last-child  { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+/* ─── EMPTY STATE ────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  padding: 40px 20px; color: var(--muted);
+}
+.empty-state i { font-size: 24px; opacity: 0.35; }
+.empty-state p { font-size: 13px; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+.main-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--muted); background: var(--surface);
+}
+.main-footer a { color: var(--blue); text-decoration: none; }
+.main-footer a:hover { text-decoration: underline; }
+
+/* ─── SPINNER ────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.fa-spin { animation: spin 0.8s linear infinite; }
+
+/* ─── ANIMATIONS ─────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Monitor</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/" class="nav-link">
+            <i class="nav-icon fa-solid fa-gauge-high"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/live-requests" class="nav-link">
+            <i class="nav-icon fa-solid fa-wave-square"></i>
+            Live Requests
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/attack-analytics" class="nav-link">
+            <i class="nav-icon fa-solid fa-shield-virus"></i>
+            Attack Analytics
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analyze</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/model-performance" class="nav-link">
+            <i class="nav-icon fa-solid fa-chart-line"></i>
+            Model Performance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/request-investigation" class="nav-link">
+            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
+            Investigation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/url-scanner" class="nav-link">
+            <i class="nav-icon fa-solid fa-link"></i>
+            URL Scanner
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Alerts</div>
+      <ul style="list-style:none;">
+        <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
+        API Sentinel
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>URL Scanner</h1>
+        <p>Analyse a URL for malicious patterns, injections, and threat signals</p>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:6px;background:var(--teal-soft);color:var(--teal);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;">
+          <i class="fa-solid fa-radar" style="font-size:11px;"></i>
+          On-Demand Scan
+        </div>
+        <div class="topbar-time" id="liveClock">—</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- ── SCANNER INPUT CARD ──────────────────────────────────────── -->
+      <div class="scanner-card">
+        <div class="scanner-header">
+          <div class="scanner-header-icon"><i class="fa-solid fa-link"></i></div>
+          <div class="scanner-header-title">Test a URL</div>
+          <div class="scanner-header-sub">Paste any URL to run an instant security scan</div>
+        </div>
+        <div class="scanner-body">
+          <div class="input-row">
+            <div class="url-input-wrap">
+              <i class="url-input-icon fa-solid fa-globe"></i>
+              <input
+                type="text"
+                id="urlInput"
+                class="url-input"
+                placeholder="https://example.com/api/login?id=1&token=abc"
+                autocomplete="off"
+                spellcheck="false"
+              >
+            </div>
+            <button class="btn-scan" id="scanBtn">
+              <i class="fa-solid fa-magnifying-glass" id="scanIcon"></i>
+              <span id="scanBtnText">Scan URL</span>
+            </button>
+          </div>
+
+          <div class="scan-msg" id="scanMessage">
+            <i class="fa-solid fa-circle-info" id="scanMsgIcon"></i>
+            <span id="scanMsgText"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RESULTS GRID ────────────────────────────────────────────── -->
+      <div class="results-grid">
+
+        <!-- Scan Result -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              Scan Result
+            </div>
+            <span id="verdictBadge">
+              <span class="status-badge badge-unknown"><span class="badge-dot"></span>Pending</span>
+            </span>
+          </div>
+          <div class="section-body">
+
+            <!-- Verdict display -->
+            <div class="verdict-display state-idle" id="verdictDisplay">
+              <div class="verdict-icon-wrap">
+                <i class="fa-solid fa-shield" id="verdictIcon"></i>
+              </div>
+              <div class="verdict-label" id="verdictLabel">Awaiting Scan</div>
+              <div class="verdict-sub" id="verdictSub">Enter a URL above and click Scan URL</div>
+            </div>
+
+            <!-- Confidence stat -->
+            <div class="stat-row">
+              <span class="stat-key">Confidence Score</span>
+              <span class="stat-val" id="confidenceValue">—</span>
+            </div>
+
+            <!-- Reason box -->
+            <div class="reason-box reason-idle" id="reasonBox">
+              <div class="reason-label">Analysis</div>
+              No result yet.
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Extracted Features -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
+                <i class="fa-solid fa-table-list"></i>
+              </div>
+              Extracted Features
+            </div>
+          </div>
+          <div class="section-body" style="padding:0;">
+            <table class="feature-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="featuresTableBody">
+                <tr>
+                  <td colspan="2">
+                    <div class="empty-state">
+                      <i class="fa-solid fa-table"></i>
+                      <p>Features will appear after scanning.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /results-grid -->
+
+    </main>
+
+    <footer class="main-footer">
+      <span>API Sentinel &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a></span>
+      <span>Spring 2026</span>
+    </footer>
+
+  </div><!-- /.main -->
+</div><!-- /.layout -->
+
+
+<script>
+/* ── LIVE CLOCK ──────────────────────────────────────────────────── */
+function updateClock() {
+  document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ── HELPERS ─────────────────────────────────────────────────────── */
+function getVerdictState(predictedClass) {
+  const val = (predictedClass || '').toLowerCase();
+  if (val === 'normal')     return 'safe';
+  if (val === 'suspicious') return 'suspicious';
+  if (val === 'malicious')  return 'malicious';
+  return 'idle';
+}
+
+function getVerdictBadgeHtml(predictedClass, fallback) {
+  const val = (predictedClass || '').toLowerCase();
+  if (val === 'normal')     return '<span class="status-badge badge-safe"><span class="badge-dot"></span>Safe</span>';
+  if (val === 'suspicious') return '<span class="status-badge badge-suspicious"><span class="badge-dot"></span>Suspicious</span>';
+  if (val === 'malicious')  return '<span class="status-badge badge-malicious"><span class="badge-dot"></span>Malicious</span>';
+  return `<span class="status-badge badge-unknown"><span class="badge-dot"></span>${fallback || 'Unknown'}</span>`;
+}
+
+const VERDICT_META = {
+  safe:       { icon: 'fa-shield-check',      label: 'Safe',       sub: 'No threats detected in this URL.', iconClass: 'fa-solid fa-shield-check' },
+  suspicious: { icon: 'fa-triangle-exclamation', label: 'Suspicious', sub: 'This URL shows suspicious patterns.', iconClass: 'fa-solid fa-triangle-exclamation' },
+  malicious:  { icon: 'fa-skull-crossbones',  label: 'Malicious',  sub: 'This URL contains malicious signals.', iconClass: 'fa-solid fa-skull-crossbones' },
+  idle:       { icon: 'fa-shield',            label: 'Awaiting Scan', sub: 'Enter a URL above and click Scan URL', iconClass: 'fa-solid fa-shield' },
+};
+
+function setScanMsg(type, text) {
+  const el     = document.getElementById('scanMessage');
+  const icon   = document.getElementById('scanMsgIcon');
+  const txtEl  = document.getElementById('scanMsgText');
+  const icons  = { info: 'fa-circle-info', success: 'fa-circle-check', error: 'fa-circle-xmark', warn: 'fa-triangle-exclamation' };
+
+  icon.className  = `fa-solid ${icons[type] || 'fa-circle-info'}`;
+  txtEl.textContent = text;
+  el.className    = `scan-msg ${type} visible`;
+}
+
+function hideScanMsg() {
+  document.getElementById('scanMessage').className = 'scan-msg';
+}
+
+function setVerdictUI(state) {
+  const meta    = VERDICT_META[state] || VERDICT_META.idle;
+  const display = document.getElementById('verdictDisplay');
+  const icon    = document.getElementById('verdictIcon');
+
+  display.className = `verdict-display state-${state}`;
+  icon.className    = meta.iconClass;
+  document.getElementById('verdictLabel').textContent = meta.label;
+  document.getElementById('verdictSub').textContent   = meta.sub;
+}
+
+function renderFeatures(features) {
+  const tbody = document.getElementById('featuresTableBody');
+  tbody.innerHTML = '';
+
+  if (!features || Object.keys(features).length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state"><i class="fa-solid fa-table"></i><p>No features available.</p></div></td></tr>`;
+    return;
+  }
+
+  Object.entries(features).forEach(([key, value]) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+    tbody.appendChild(row);
+  });
+}
+
+/* ── SCAN ────────────────────────────────────────────────────────── */
+async function scanUrl() {
+  const url     = document.getElementById('urlInput').value.trim();
+  const scanBtn = document.getElementById('scanBtn');
+
+  if (!url) {
+    setScanMsg('warn', 'Please enter a URL to scan.');
+    return;
+  }
+
+  // Loading state
+  scanBtn.classList.add('scanning');
+  document.getElementById('scanIcon').className    = 'fa-solid fa-spinner fa-spin';
+  document.getElementById('scanBtnText').textContent = 'Scanning…';
+  setScanMsg('info', 'Analysing URL — this may take a moment…');
+
+  try {
+    const response = await fetch('/api/scan-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) throw new Error(data.error || 'Failed to scan URL');
+
+    // Verdict badge (in header)
+    document.getElementById('verdictBadge').innerHTML =
+      getVerdictBadgeHtml(data.predicted_class, data.verdict);
+
+    // Verdict display block
+    const state = getVerdictState(data.predicted_class);
+    setVerdictUI(state);
+
+    // Confidence
+    document.getElementById('confidenceValue').textContent = data.confidence_score ?? '—';
+
+    // Reason box
+    const reasonCls = { safe: 'reason-safe', suspicious: 'reason-suspicious', malicious: 'reason-malicious' };
+    const rb = document.getElementById('reasonBox');
+    rb.className = `reason-box ${reasonCls[state] || 'reason-idle'}`;
+    rb.innerHTML = `<div class="reason-label">Analysis</div>${data.reason || 'No reason provided.'}`;
+
+    renderFeatures(data.features);
+
+    setScanMsg('success', 'Scan completed successfully.');
+
+  } catch (error) {
+    console.error('Scan failed:', error);
+    setScanMsg('error', error.message);
+    setVerdictUI('idle');
+  } finally {
+    scanBtn.classList.remove('scanning');
+    document.getElementById('scanIcon').className    = 'fa-solid fa-magnifying-glass';
+    document.getElementById('scanBtnText').textContent = 'Scan URL';
+  }
+}
+
+/* ── INIT ────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  // Active nav
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.getAttribute('href') === path) link.classList.add('active');
+  });
+
+  document.getElementById('scanBtn').addEventListener('click', scanUrl);
+
+  document.getElementById('urlInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') scanUrl();
+  });
+});
+</script>
+
+</body>
+</html>

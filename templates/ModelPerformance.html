@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Sentinel | Model Performance</title>
+  <link rel="icon" href="static/assets/API_Sentinel_Favicon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f2f2f7;
+  --surface:      #ffffff;
+  --surface-2:    #f9f9fb;
+  --border:       rgba(0,0,0,0.07);
+  --text:         #1c1c1e;
+  --text-2:       #3a3a3c;
+  --muted:        #8e8e93;
+  --sidebar-w:    240px;
+
+  --blue:         #007aff;
+  --blue-soft:    #e8f1ff;
+  --green:        #34c759;
+  --green-soft:   #e5f8eb;
+  --amber:        #ff9f0a;
+  --amber-soft:   #fff4e0;
+  --red:          #ff3b30;
+  --red-soft:     #ffeceb;
+  --purple:       #af52de;
+  --purple-soft:  #f5edff;
+  --teal:         #32ade6;
+  --teal-soft:    #e3f5fd;
+  --indigo:       #5856d6;
+  --indigo-soft:  #eeeeff;
+
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'DM Mono', ui-monospace, monospace;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  padding: 0 0 24px 0;
+}
+
+.sidebar-brand {
+  display: block;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.brand-icon {
+  width: 36px; height: 36px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
+}
+
+.brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
+.brand-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+.sidebar-section { padding: 20px 12px 4px; }
+
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 8px; margin-bottom: 4px;
+}
+
+.nav-item { list-style: none; }
+
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 500;
+  color: var(--text-2); text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+}
+
+.nav-link:hover { background: var(--bg); color: var(--text); }
+.nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
+.nav-link.active .nav-icon { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
+.sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.sidebar-footer-text a { color: var(--blue); text-decoration: none; }
+
+/* ─── MAIN ───────────────────────────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 90;
+}
+
+.topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+.topbar-left p  { font-size: 12px; color: var(--muted); }
+.topbar-right   { display: flex; align-items: center; gap: 12px; }
+
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--blue-soft); color: var(--blue);
+  border-radius: 999px; padding: 5px 12px;
+  font-size: 12px; font-weight: 600;
+}
+
+.topbar-time { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+/* ─── PAGE CONTENT ───────────────────────────────────────────────────────── */
+.page-content { padding: 28px 32px; flex: 1; }
+
+/* ─── TAB NAV ────────────────────────────────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+  width: fit-content;
+  animation: fadeUp 0.35s ease both;
+}
+
+.tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 18px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover { background: var(--bg); color: var(--text-2); }
+
+.tab-btn.active {
+  background: var(--blue);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(0,122,255,0.25);
+}
+
+.tab-btn i { font-size: 12px; }
+
+/* ─── TAB PANELS ─────────────────────────────────────────────────────────── */
+.tab-panel { display: none; }
+.tab-panel.active {
+  display: block;
+  animation: fadeUp 0.35s ease both;
+}
+
+/* ─── METRIC GRID ────────────────────────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.4s ease both;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.metric-card.blue::before   { background: var(--blue); }
+.metric-card.green::before  { background: var(--green); }
+.metric-card.amber::before  { background: var(--amber); }
+.metric-card.red::before    { background: var(--red); }
+.metric-card.purple::before { background: var(--purple); }
+.metric-card.teal::before   { background: var(--teal); }
+
+.metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+
+.metric-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; margin-bottom: 12px;
+}
+
+.metric-card.blue   .metric-icon { background: var(--blue-soft);   color: var(--blue); }
+.metric-card.green  .metric-icon { background: var(--green-soft);  color: #1d8a3a; }
+.metric-card.amber  .metric-icon { background: var(--amber-soft);  color: #c7760a; }
+.metric-card.red    .metric-icon { background: var(--red-soft);    color: #c0291f; }
+.metric-card.purple .metric-icon { background: var(--purple-soft); color: var(--purple); }
+.metric-card.teal   .metric-icon { background: var(--teal-soft);   color: #1a7fa8; }
+
+.metric-value {
+  font-size: 26px; font-weight: 700; letter-spacing: -0.04em;
+  color: var(--text); line-height: 1; margin-bottom: 4px;
+}
+
+.metric-label { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+
+/* stagger children */
+.metrics-grid .metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metrics-grid .metric-card:nth-child(2) { animation-delay: 0.10s; }
+.metrics-grid .metric-card:nth-child(3) { animation-delay: 0.15s; }
+.metrics-grid .metric-card:nth-child(4) { animation-delay: 0.20s; }
+
+/* ─── CHARTS ROW ─────────────────────────────────────────────────────────── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+}
+
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeUp 0.45s ease 0.25s both;
+}
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.title-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+
+.section-body { padding: 20px; }
+
+/* ─── CHART CONTAINER ────────────────────────────────────────────────────── */
+.chart-wrap { position: relative; height: 300px; }
+
+/* ─── INSIGHT CARD ───────────────────────────────────────────────────────── */
+.insight-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+
+.insight-item {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.insight-label {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.insight-value {
+  font-size: 13px; font-weight: 500; color: var(--text-2); line-height: 1.4;
+}
+
+/* ─── ERROR STAT PAIR ────────────────────────────────────────────────────── */
+.stat-pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat-box {
+  padding: 12px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.stat-box .stat-num { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; }
+.stat-box .stat-lbl { font-size: 10.5px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+.stat-box.red-box   { background: var(--red-soft);   }
+.stat-box.amber-box { background: var(--amber-soft);  }
+.stat-box.red-box   .stat-num { color: #c0291f; }
+.stat-box.amber-box .stat-num { color: #c7760a; }
+
+/* ─── CHART LEGEND ───────────────────────────────────────────────────────── */
+.chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); font-weight: 500; }
+.legend-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+.main-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--muted);
+  background: var(--surface);
+}
+
+.main-footer a { color: var(--blue); text-decoration: none; }
+.main-footer a:hover { text-decoration: underline; }
+
+/* ─── ANIMATIONS ─────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+   <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Monitor</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/" class="nav-link">
+            <i class="nav-icon fa-solid fa-gauge-high"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/live-requests" class="nav-link">
+            <i class="nav-icon fa-solid fa-wave-square"></i>
+            Live Requests
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/attack-analytics" class="nav-link">
+            <i class="nav-icon fa-solid fa-shield-virus"></i>
+            Attack Analytics
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analyze</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/model-performance" class="nav-link">
+            <i class="nav-icon fa-solid fa-chart-line"></i>
+            Model Performance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/request-investigation" class="nav-link">
+            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
+            Investigation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/url-scanner" class="nav-link">
+            <i class="nav-icon fa-solid fa-link"></i>
+            URL Scanner
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Alerts</div>
+      <ul style="list-style:none;">
+        <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
+        API Sentinel
+      </div>
+    </div>
+  </aside>
+  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Model Performance</h1>
+        <p>Supervised, unsupervised, and rule-based detection metrics</p>
+      </div>
+      <div class="topbar-right">
+        <div class="status-pill" style="background:var(--indigo-soft);color:var(--indigo);">
+          <i class="fa-solid fa-brain" style="font-size:11px;"></i>
+          3 Models Active
+        </div>
+        <div class="topbar-time" id="liveClock">—</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- ── TAB NAV ─────────────────────────────────────────────────── -->
+      <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('supervised', this)">
+          <i class="fa-solid fa-robot"></i> Supervised Model
+        </button>
+        <button class="tab-btn" onclick="switchTab('unsupervised', this)">
+          <i class="fa-solid fa-circle-nodes"></i> Unsupervised Model
+        </button>
+        <button class="tab-btn" onclick="switchTab('mitm', this)">
+          <i class="fa-solid fa-user-secret"></i> Man in The Middle (MiTM)
+        </button>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- TAB: SUPERVISED                                      -->
+      <!-- ════════════════════════════════════════════════════ -->
+      <div id="tab-supervised" class="tab-panel active">
+
+        <div class="metrics-grid">
+          <div class="metric-card blue">
+            <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="metric-value">85%</div>
+            <div class="metric-label">Accuracy</div>
+          </div>
+          <div class="metric-card green">
+            <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="metric-value">77%</div>
+            <div class="metric-label">Precision</div>
+          </div>
+          <div class="metric-card amber">
+            <div class="metric-icon"><i class="fa-solid fa-magnet"></i></div>
+            <div class="metric-value">91%</div>
+            <div class="metric-label">Recall</div>
+          </div>
+          <div class="metric-card red">
+            <div class="metric-icon"><i class="fa-solid fa-star-half-stroke"></i></div>
+            <div class="metric-value">84%</div>
+            <div class="metric-label">F1 Score</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--blue-soft);color:var(--blue);">
+                  <i class="fa-solid fa-table-cells"></i>
+                </div>
+                Confusion Matrix
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="chart-wrap">
+                <canvas id="supervisedConfusionChart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>True Positive</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span>False Positive</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span>True Negative</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>False Negative</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--red-soft);color:var(--red);">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                Error Analysis
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="stat-pair">
+                <div class="stat-box amber-box">
+                  <div class="stat-num">463</div>
+                  <div class="stat-lbl">False Positives</div>
+                </div>
+                <div class="stat-box red-box">
+                  <div class="stat-num">1,324</div>
+                  <div class="stat-lbl">False Negatives</div>
+                </div>
+              </div>
+              <ul class="insight-list">
+                <li class="insight-item">
+                  <span class="insight-label">Best Use</span>
+                  <span class="insight-value">Main attack classification pipeline</span>
+                </li>
+                <li class="insight-item">
+                  <span class="insight-label">Observation</span>
+                  <span class="insight-value">High recall catches most malicious traffic with minimal misses</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- TAB: UNSUPERVISED                                    -->
+      <!-- ════════════════════════════════════════════════════ -->
+      <div id="tab-unsupervised" class="tab-panel">
+
+        <div class="metrics-grid">
+          <div class="metric-card blue">
+            <div class="metric-icon"><i class="fa-solid fa-chart-simple"></i></div>
+            <div class="metric-value">0.81</div>
+            <div class="metric-label">Anomaly Score Avg</div>
+          </div>
+          <div class="metric-card green">
+            <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
+            <div class="metric-value">92%</div>
+            <div class="metric-label">Normal Pattern Fit</div>
+          </div>
+          <div class="metric-card amber">
+            <div class="metric-icon"><i class="fa-solid fa-flag"></i></div>
+            <div class="metric-value">138</div>
+            <div class="metric-label">Anomalies Flagged</div>
+          </div>
+          <div class="metric-card red">
+            <div class="metric-icon"><i class="fa-solid fa-radiation"></i></div>
+            <div class="metric-value">21</div>
+            <div class="metric-label">High-Risk Outliers</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
+                  <i class="fa-solid fa-chart-line"></i>
+                </div>
+                Anomaly Detection Distribution
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="chart-wrap">
+                <canvas id="unsupervisedChart"></canvas>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Normal Score</div>
+                <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Anomaly Score</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--purple-soft);color:var(--purple);">
+                  <i class="fa-solid fa-lightbulb"></i>
+                </div>
+                Interpretation
+              </div>
+            </div>
+            <div class="section-body">
+              <ul class="insight-list">
+                <li class="insight-item">
+                  <span class="insight-label">Best Use</span>
+                  <span class="insight-value">Unknown and zero-day attack patterns</span>
+                </li>
+                <li class="insight-item">
+                  <span class="insight-label">Strength</span>
+                  <span class="insight-value">Detects unusual behavior without requiring labeled data</span>
+                </li>
+                <li class="insight-item">
+                  <span class="insight-label">Limitation</span>
+                  <span class="insight-value">May flag rare but legitimate traffic as anomalous</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════ -->
+      <!-- TAB: MITM                                            -->
+      <!-- ════════════════════════════════════════════════════ -->
+      <div id="tab-mitm" class="tab-panel">
+
+        <div class="metrics-grid">
+          <div class="metric-card blue">
+            <div class="metric-icon"><i class="fa-solid fa-bell"></i></div>
+            <div class="metric-value">64</div>
+            <div class="metric-label">MITM Alerts</div>
+          </div>
+          <div class="metric-card green">
+            <div class="metric-icon"><i class="fa-solid fa-code"></i></div>
+            <div class="metric-value">47</div>
+            <div class="metric-label">Header Tampering</div>
+          </div>
+          <div class="metric-card amber">
+            <div class="metric-icon"><i class="fa-solid fa-file-pen"></i></div>
+            <div class="metric-value">26</div>
+            <div class="metric-label">Payload Changes</div>
+          </div>
+          <div class="metric-card red">
+            <div class="metric-icon"><i class="fa-solid fa-key"></i></div>
+            <div class="metric-value">11</div>
+            <div class="metric-label">Token Mismatch</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--red-soft);color:var(--red);">
+                  <i class="fa-solid fa-chart-bar"></i>
+                </div>
+                MITM / Rule-Based Detection Events
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="chart-wrap">
+                <canvas id="mitmChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
+                  <i class="fa-solid fa-gears"></i>
+                </div>
+                Detection Logic
+              </div>
+            </div>
+            <div class="section-body">
+              <ul class="insight-list">
+                <li class="insight-item">
+                  <span class="insight-label">Best Use</span>
+                  <span class="insight-value">Request tampering and interception indicators</span>
+                </li>
+                <li class="insight-item">
+                  <span class="insight-label">Examples</span>
+                  <span class="insight-value">Changed headers, altered payload, suspicious proxy path</span>
+                </li>
+                <li class="insight-item">
+                  <span class="insight-label">Nature</span>
+                  <span class="insight-value">Rule-based, deterministic checks — no ML inference</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="main-footer">
+      <span>API Sentinel &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a></span>
+      <span>Spring 2026</span>
+    </footer>
+
+  </div>
+</div>
+
+
+<script>
+/* ── LIVE CLOCK ──────────────────────────────────────────────────── */
+function updateClock() {
+  document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ── ACTIVE NAV ──────────────────────────────────────────────────── */
+function highlightActiveNav() {
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.getAttribute('href') === path) link.classList.add('active');
+  });
+}
+
+/* ── TAB SWITCHER ────────────────────────────────────────────────── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── CHART DEFAULTS ──────────────────────────────────────────────── */
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#8e8e93';
+
+/* ── SUPERVISED — CONFUSION MATRIX ──────────────────────────────── */
+new Chart(document.getElementById('supervisedConfusionChart'), {
+  type: 'bar',
+  data: {
+    labels: ['True Positive', 'False Positive', 'True Negative', 'False Negative'],
+    datasets: [{
+      label: 'Count',
+      data: [4550, 463, 5876, 1324],
+      backgroundColor: ['#34c759', '#ff9f0a', '#32ade6', '#ff3b30'],
+      borderRadius: 8,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+        ticks: { font: { size: 11 } }
+      }
+    }
+  }
+});
+
+/* ── UNSUPERVISED — ANOMALY SCORES ───────────────────────────────── */
+const ctx2 = document.getElementById('unsupervisedChart').getContext('2d');
+
+const gradG = ctx2.createLinearGradient(0, 0, 0, 280);
+gradG.addColorStop(0, 'rgba(52,199,89,0.18)');
+gradG.addColorStop(1, 'rgba(52,199,89,0)');
+
+const gradR = ctx2.createLinearGradient(0, 0, 0, 280);
+gradR.addColorStop(0, 'rgba(255,59,48,0.15)');
+gradR.addColorStop(1, 'rgba(255,59,48,0)');
+
+new Chart(ctx2, {
+  type: 'line',
+  data: {
+    labels: ['Batch 1', 'Batch 2', 'Batch 3', 'Batch 4', 'Batch 5', 'Batch 6'],
+    datasets: [
+      {
+        label: 'Normal Score',
+        data: [0.92, 0.90, 0.88, 0.93, 0.91, 0.89],
+        borderColor: '#34c759', backgroundColor: gradG,
+        fill: true, tension: 0.4,
+        pointRadius: 4, pointBackgroundColor: '#34c759', borderWidth: 2
+      },
+      {
+        label: 'Anomaly Score',
+        data: [0.15, 0.22, 0.61, 0.18, 0.77, 0.84],
+        borderColor: '#ff3b30', backgroundColor: gradR,
+        fill: true, tension: 0.4,
+        pointRadius: 4, pointBackgroundColor: '#ff3b30', borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: {
+        beginAtZero: true, max: 1,
+        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+        ticks: { font: { size: 11 } }
+      }
+    }
+  }
+});
+
+/* ── MITM — BAR CHART ────────────────────────────────────────────── */
+new Chart(document.getElementById('mitmChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Header Tampering', 'Payload Changes', 'Token Mismatch', 'TLS Downgrade', 'Replay Pattern'],
+    datasets: [{
+      label: 'Detections',
+      data: [47, 26, 11, 8, 14],
+      backgroundColor: ['#32ade6', '#ff9f0a', '#ff3b30', '#af52de', '#ff6b35'],
+      borderRadius: 8,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+        ticks: { font: { size: 11 } }
+      }
+    }
+  }
+});
+
+document.addEventListener('DOMContentLoaded', highlightActiveNav);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Sentinel | Request Investigation</title>
+<link rel="icon" href="static/assets/API_Sentinel_Favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f2f2f7;
+  --surface:      #ffffff;
+  --surface-2:    #f9f9fb;
+  --border:       rgba(0,0,0,0.07);
+  --text:         #1c1c1e;
+  --text-2:       #3a3a3c;
+  --muted:        #8e8e93;
+  --sidebar-w:    240px;
+
+  --blue:         #007aff;
+  --blue-soft:    #e8f1ff;
+  --green:        #34c759;
+  --green-soft:   #e5f8eb;
+  --amber:        #ff9f0a;
+  --amber-soft:   #fff4e0;
+  --red:          #ff3b30;
+  --red-soft:     #ffeceb;
+  --purple:       #af52de;
+  --purple-soft:  #f5edff;
+  --teal:         #32ade6;
+  --teal-soft:    #e3f5fd;
+  --indigo:       #5856d6;
+  --indigo-soft:  #eeeeff;
+
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'DM Mono', ui-monospace, monospace;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100; padding: 0 0 24px 0;
+}
+
+.sidebar-brand {
+  display: block;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.brand-icon {
+  width: 36px; height: 36px; background: var(--blue);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 16px; flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
+}
+
+.brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
+.brand-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
+
+.sidebar-section { padding: 20px 12px 4px; }
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  padding: 0 8px; margin-bottom: 4px;
+}
+
+.nav-item { list-style: none; }
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 500; color: var(--text-2);
+  text-decoration: none; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
+}
+.nav-link:hover  { background: var(--bg); color: var(--text); }
+.nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
+.nav-link.active .nav-icon { opacity: 1; }
+
+.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
+.sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.sidebar-footer-text a { color: var(--blue); text-decoration: none; }
+
+/* ─── MAIN ───────────────────────────────────────────────────────────────── */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 90;
+}
+
+.topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+.topbar-left p  { font-size: 12px; color: var(--muted); }
+.topbar-right   { display: flex; align-items: center; gap: 12px; }
+.topbar-time    { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+/* ─── PAGE CONTENT ───────────────────────────────────────────────────────── */
+.page-content { padding: 28px 32px; flex: 1; }
+
+/* ─── TWO COLUMN GRID ────────────────────────────────────────────────────── */
+.investigation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ─── SECTION CARDS ──────────────────────────────────────────────────────── */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  animation: fadeUp 0.4s ease both;
+}
+
+.section-card:nth-child(1) { animation-delay: 0.05s; }
+.section-card:nth-child(2) { animation-delay: 0.10s; }
+.section-card:nth-child(3) { animation-delay: 0.15s; }
+.section-card:nth-child(4) { animation-delay: 0.20s; }
+.section-card:nth-child(5) { animation-delay: 0.25s; }
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 13.5px; font-weight: 600; color: var(--text);
+  letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px;
+}
+
+.title-icon {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+
+.section-body { padding: 20px; }
+
+/* ─── FIELD ROWS ─────────────────────────────────────────────────────────── */
+.field-group { margin-bottom: 16px; }
+.field-group:last-child { margin-bottom: 0; }
+
+.field-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin-bottom: 5px;
+}
+
+.field-value {
+  font-size: 13.5px; font-weight: 500; color: var(--text-2);
+}
+
+.field-value.mono { font-family: var(--mono); font-size: 12.5px; color: var(--blue); }
+
+/* ─── CODE BLOCKS ────────────────────────────────────────────────────────── */
+.code-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Custom scrollbar for code blocks */
+.code-block::-webkit-scrollbar { width: 5px; height: 5px; }
+.code-block::-webkit-scrollbar-track { background: transparent; }
+.code-block::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ─── INLINE STAT ROW ────────────────────────────────────────────────────── */
+.stat-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+.stat-row:first-child { padding-top: 0; }
+
+.stat-key {
+  font-size: 12px; font-weight: 500; color: var(--muted);
+}
+
+.stat-val {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  font-family: var(--mono);
+}
+
+/* ─── STATUS / CLASS BADGES ──────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600;
+}
+.badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+.badge-normal     { background: var(--green-soft);  color: #1d8a3a; }
+.badge-suspicious { background: var(--amber-soft);  color: #c7760a; }
+.badge-malicious  { background: var(--red-soft);    color: #c0291f; }
+.badge-unknown    { background: #f2f2f7;             color: var(--muted); }
+
+.badge-normal     .badge-dot { background: var(--green); }
+.badge-suspicious .badge-dot { background: var(--amber); }
+.badge-malicious  .badge-dot { background: var(--red); }
+.badge-unknown    .badge-dot { background: var(--muted); }
+
+/* ─── DECISION ALERT BOX ─────────────────────────────────────────────────── */
+.decision-alert {
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 16px;
+}
+
+.decision-alert .alert-icon {
+  width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+}
+
+.decision-alert .alert-body { flex: 1; }
+.decision-alert .alert-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.decision-alert .alert-desc  { font-size: 12px; line-height: 1.5; opacity: 0.85; }
+
+.alert-blocked   { background: var(--red-soft);    color: #c0291f; }
+.alert-flagged   { background: var(--amber-soft);  color: #c7760a; }
+.alert-allowed   { background: var(--green-soft);  color: #1d8a3a; }
+.alert-unknown   { background: #f2f2f7;             color: var(--muted); }
+
+.alert-blocked  .alert-icon { background: rgba(255,59,48,0.12); }
+.alert-flagged  .alert-icon { background: rgba(255,159,10,0.12); }
+.alert-allowed  .alert-icon { background: rgba(52,199,89,0.12); }
+.alert-unknown  .alert-icon { background: rgba(0,0,0,0.05); }
+
+/* ─── RULE TRIGGER BOX ───────────────────────────────────────────────────── */
+.rule-box {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13px; font-weight: 500; line-height: 1.5;
+}
+
+.rule-box.rule-clean   { background: var(--green-soft);  color: #1d8a3a; }
+.rule-box.rule-trigger { background: var(--red-soft);    color: #c0291f; }
+.rule-box .rule-label  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; opacity: 0.7; }
+
+/* ─── ACTION BUTTONS ─────────────────────────────────────────────────────── */
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.btn-action {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border: none; border-radius: var(--radius-sm);
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: transform 0.12s, box-shadow 0.15s, background 0.15s;
+}
+.btn-action:hover { transform: translateY(-1px); }
+.btn-action:active { transform: translateY(0); }
+
+.btn-unblock {
+  background: var(--green); color: white;
+  box-shadow: 0 2px 10px rgba(52,199,89,0.28);
+}
+.btn-unblock:hover { background: #28b04a; box-shadow: 0 4px 14px rgba(52,199,89,0.35); }
+
+.btn-safe {
+  background: var(--blue); color: white;
+  box-shadow: 0 2px 10px rgba(0,122,255,0.25);
+}
+.btn-safe:hover { background: #0066dd; box-shadow: 0 4px 14px rgba(0,122,255,0.35); }
+
+/* ─── ACTION MESSAGE ─────────────────────────────────────────────────────── */
+.action-msg {
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 13px; font-weight: 500;
+  margin-top: 12px;
+  display: none;
+}
+.action-msg.success { background: var(--green-soft); color: #1d8a3a; display: block; }
+.action-msg.error   { background: var(--red-soft);   color: #c0291f; display: block; }
+.action-msg.info    { background: var(--blue-soft);  color: var(--blue); display: block; }
+
+/* ─── FEATURE TABLE ──────────────────────────────────────────────────────── */
+.feature-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.feature-table thead th {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em;
+  font-weight: 700; color: var(--muted); padding: 0 12px 8px; text-align: left;
+}
+.feature-table tbody tr { border-top: 1px solid var(--border); transition: background 0.12s; }
+.feature-table tbody tr:hover { background: var(--surface-2); }
+.feature-table td { padding: 9px 12px; vertical-align: middle; color: var(--text-2); }
+.feature-table td:first-child { font-weight: 500; color: var(--text); }
+.feature-table td:last-child  { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+/* ─── FULL-WIDTH CARD ────────────────────────────────────────────────────── */
+.full-width { grid-column: 1 / -1; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
+.main-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--muted); background: var(--surface);
+}
+.main-footer a { color: var(--blue); text-decoration: none; }
+.main-footer a:hover { text-decoration: underline; }
+
+/* ─── EMPTY PLACEHOLDER ──────────────────────────────────────────────────── */
+.empty-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  padding: 40px 20px; color: var(--muted);
+}
+.empty-placeholder i { font-size: 24px; opacity: 0.35; }
+.empty-placeholder p { font-size: 13px; }
+
+/* ─── ANIMATIONS ─────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Monitor</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/" class="nav-link">
+            <i class="nav-icon fa-solid fa-gauge-high"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/live-requests" class="nav-link">
+            <i class="nav-icon fa-solid fa-wave-square"></i>
+            Live Requests
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/attack-analytics" class="nav-link">
+            <i class="nav-icon fa-solid fa-shield-virus"></i>
+            Attack Analytics
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analyze</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/model-performance" class="nav-link">
+            <i class="nav-icon fa-solid fa-chart-line"></i>
+            Model Performance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/request-investigation" class="nav-link">
+            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
+            Investigation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/url-scanner" class="nav-link">
+            <i class="nav-icon fa-solid fa-link"></i>
+            URL Scanner
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Alerts</div>
+      <ul style="list-style:none;">
+        <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
+        API Sentinel
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Request Investigation</h1>
+        <p>Deep-dive into a specific request — raw data, model decisions, and actions</p>
+      </div>
+      <div class="topbar-right">
+        <div style="display:flex;align-items:center;gap:6px;background:var(--purple-soft);color:var(--purple);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;">
+          <i class="fa-solid fa-magnifying-glass-chart" style="font-size:11px;"></i>
+          Forensic View
+        </div>
+        <div class="topbar-time" id="liveClock">—</div>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="investigation-grid">
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- LEFT COL: RAW REQUEST                             -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--blue-soft);color:var(--blue);">
+                <i class="fa-solid fa-file-code"></i>
+              </div>
+              Raw Request Details
+            </div>
+          </div>
+          <div class="section-body">
+
+            <div class="field-group">
+              <div class="field-label">Timestamp</div>
+              <div class="field-value mono" id="reqTimestamp">—</div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">IP Address</div>
+              <div class="field-value mono" id="reqIp">—</div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="field-group">
+                <div class="field-label">Method</div>
+                <div class="field-value" id="reqMethod">—</div>
+              </div>
+              <div class="field-group">
+                <div class="field-label">Endpoint</div>
+                <div class="field-value mono" id="reqPath">—</div>
+              </div>
+            </div>
+
+            <div class="field-group" style="margin-top:16px;">
+              <div class="field-label">Request Headers</div>
+              <pre class="code-block" id="reqHeaders">—</pre>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Payload</div>
+              <pre class="code-block" id="reqPayload">—</pre>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Query Parameters</div>
+              <pre class="code-block" id="reqQueryParams">—</pre>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- RIGHT COL: ANALYSIS STACK                         -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Rule-Based Reason -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--red-soft);color:var(--red);">
+                  <i class="fa-solid fa-gavel"></i>
+                </div>
+                Rule-Based Reason
+              </div>
+            </div>
+            <div class="section-body">
+              <div id="ruleReasonBox" class="rule-box rule-clean">
+                <div class="rule-label">Status</div>
+                No rule triggered.
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Decision -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
+                  <i class="fa-solid fa-robot"></i>
+                </div>
+                Model Decision
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="stat-row">
+                <span class="stat-key">Predicted Class</span>
+                <span id="predictedClassBadge"><span class="status-badge badge-unknown"><span class="badge-dot"></span>—</span></span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-key">Confidence Score</span>
+                <span class="stat-val" id="modelConfidence">—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-key">Anomaly Score</span>
+                <span class="stat-val" id="anomalyScore">—</span>
+              </div>
+              <div class="stat-row">
+                <span class="stat-key">Anomaly Verdict</span>
+                <span id="anomalyVerdictBadge"><span class="status-badge badge-unknown"><span class="badge-dot"></span>—</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Final Decision + Actions -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <div class="title-icon" style="background:var(--indigo-soft);color:var(--indigo);">
+                  <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                Final Decision &amp; Actions
+              </div>
+            </div>
+            <div class="section-body">
+              <div id="finalDecisionBox" class="decision-alert alert-unknown">
+                <div class="alert-icon"><i class="fa-solid fa-circle-question"></i></div>
+                <div class="alert-body">
+                  <div class="alert-title">No Decision Available</div>
+                  <div class="alert-desc">Load a request to see the final verdict.</div>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button id="unblockBtn" class="btn-action btn-unblock" style="display:none;">
+                  <i class="fa-solid fa-circle-play"></i> Unblock &amp; Resend
+                </button>
+                <button id="markSafeBtn" class="btn-action btn-safe" style="display:none;">
+                  <i class="fa-solid fa-shield-check"></i> Mark as Safe
+                </button>
+              </div>
+
+              <div id="actionMessage"></div>
+            </div>
+          </div>
+
+        </div><!-- /right col -->
+
+        <!-- ══════════════════════════════════════════════════ -->
+        <!-- FULL WIDTH: EXTRACTED FEATURES                    -->
+        <!-- ══════════════════════════════════════════════════ -->
+        <div class="section-card full-width">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
+                <i class="fa-solid fa-table-list"></i>
+              </div>
+              Extracted Features
+            </div>
+          </div>
+          <div class="section-body" style="padding:0;">
+            <table class="feature-table">
+              <thead>
+                <tr>
+                  <th style="padding-left:20px;">Feature</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="featureTableBody">
+                <tr>
+                  <td colspan="2">
+                    <div class="empty-placeholder">
+                      <i class="fa-solid fa-table"></i>
+                      <p>No features extracted yet.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /investigation-grid -->
+    </main>
+
+    <footer class="main-footer">
+      <span>API Sentinel &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a></span>
+      <span>Spring 2026</span>
+    </footer>
+
+  </div><!-- /.main -->
+</div><!-- /.layout -->
+
+
+<script>
+/* ── LIVE CLOCK ──────────────────────────────────────────────────── */
+function updateClock() {
+  document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ── STATE ───────────────────────────────────────────────────────── */
+let currentRequestId   = null;
+let currentRequestData = null;
+
+/* ── HELPERS ─────────────────────────────────────────────────────── */
+function formatJson(data) {
+  if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) return '—';
+  try { return JSON.stringify(data, null, 2); }
+  catch { return String(data); }
+}
+
+function getClassBadge(className) {
+  const value = (className || '').toLowerCase();
+  if (value === 'normal')     return '<span class="status-badge badge-normal"><span class="badge-dot"></span>Normal</span>';
+  if (value === 'suspicious') return '<span class="status-badge badge-suspicious"><span class="badge-dot"></span>Suspicious</span>';
+  if (value === 'malicious')  return '<span class="status-badge badge-malicious"><span class="badge-dot"></span>Malicious</span>';
+  return '<span class="status-badge badge-unknown"><span class="badge-dot"></span>Unknown</span>';
+}
+
+function getDecisionAlert(decision, reason) {
+  const value = (decision || '').toLowerCase();
+  let cls = 'alert-unknown', icon = 'fa-circle-question', title = 'Unknown';
+
+  if (value === 'block' || value === 'blocked') {
+    cls = 'alert-blocked'; icon = 'fa-ban'; title = 'Blocked';
+  } else if (value === 'flag' || value === 'flagged') {
+    cls = 'alert-flagged'; icon = 'fa-flag'; title = 'Flagged as Suspicious';
+  } else if (value === 'allow' || value === 'allowed') {
+    cls = 'alert-allowed'; icon = 'fa-circle-check'; title = 'Allowed';
+  }
+
+  return `
+    <div class="decision-alert ${cls}">
+      <div class="alert-icon"><i class="fa-solid ${icon}"></i></div>
+      <div class="alert-body">
+        <div class="alert-title">${title}</div>
+        <div class="alert-desc">${reason || 'No reason provided.'}</div>
+      </div>
+    </div>`;
+}
+
+function getRuleReasonBox(reason) {
+  if (!reason || reason.trim() === '' || reason.toLowerCase() === 'normal request') {
+    return `<div class="rule-box rule-clean"><div class="rule-label">Status</div>No rule triggered — request passed all checks.</div>`;
+  }
+  return `<div class="rule-box rule-trigger"><div class="rule-label">Rule Triggered</div>${reason}</div>`;
+}
+
+function renderFeatureTable(features) {
+  const tbody = document.getElementById('featureTableBody');
+  tbody.innerHTML = '';
+
+  if (!features || Object.keys(features).length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2"><div class="empty-placeholder"><i class="fa-solid fa-table"></i><p>No features available.</p></div></td></tr>`;
+    return;
+  }
+
+  Object.entries(features).forEach(([key, value]) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td style="padding-left:20px;">${key}</td><td>${value}</td>`;
+    tbody.appendChild(row);
+  });
+}
+
+function updateActionButtons(data) {
+  const unblockBtn  = document.getElementById('unblockBtn');
+  const markSafeBtn = document.getElementById('markSafeBtn');
+  const decision    = (data.decision || '').toLowerCase();
+  const predicted   = (data.predicted_class || '').toLowerCase();
+
+  unblockBtn.style.display  = 'none';
+  markSafeBtn.style.display = 'none';
+
+  if (decision === 'block' || decision === 'blocked' || predicted === 'malicious') {
+    unblockBtn.style.display  = 'inline-flex';
+    markSafeBtn.style.display = 'inline-flex';
+  } else if (decision === 'flag' || decision === 'flagged' || predicted === 'suspicious') {
+    markSafeBtn.style.display = 'inline-flex';
+  }
+}
+
+function setActionMsg(type, text) {
+  const el = document.getElementById('actionMessage');
+  el.innerHTML = text;
+  el.className = 'action-msg ' + type;
+}
+
+/* ── LOAD DETAILS ────────────────────────────────────────────────── */
+async function loadRequestDetails(requestId) {
+  try {
+    currentRequestId = requestId;
+    const response = await fetch(`/api/request-details?id=${encodeURIComponent(requestId)}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.success) throw new Error(data.error || 'Failed to load request details');
+
+    currentRequestData = data;
+
+    document.getElementById('reqTimestamp').textContent  = data.timestamp   || '—';
+    document.getElementById('reqIp').textContent         = data.ip_address  || '—';
+    document.getElementById('reqMethod').textContent     = data.method      || '—';
+    document.getElementById('reqPath').textContent       = data.path        || '—';
+    document.getElementById('reqHeaders').textContent    = formatJson(data.headers);
+    document.getElementById('reqPayload').textContent    = typeof data.payload === 'string' ? data.payload : formatJson(data.payload);
+    document.getElementById('reqQueryParams').textContent = formatJson(data.query_params);
+
+    document.getElementById('ruleReasonBox').outerHTML =
+      `<div id="ruleReasonBox">${getRuleReasonBox(data.reason)}</div>`;
+
+    document.getElementById('predictedClassBadge').innerHTML = getClassBadge(data.predicted_class);
+    document.getElementById('modelConfidence').textContent   = data.confidence_score ?? '—';
+    document.getElementById('anomalyScore').textContent      = data.anomaly_score    ?? '—';
+    document.getElementById('anomalyVerdictBadge').innerHTML = getClassBadge(data.anomaly_verdict);
+
+    renderFeatureTable(data.features);
+
+    document.getElementById('finalDecisionBox').outerHTML =
+      `<div id="finalDecisionBox">${getDecisionAlert(data.decision, data.reason)}</div>`;
+
+    document.getElementById('actionMessage').innerHTML = '';
+    document.getElementById('actionMessage').className = 'action-msg';
+    updateActionButtons(data);
+
+  } catch (error) {
+    console.error('Failed to load request details:', error);
+    document.getElementById('finalDecisionBox').outerHTML = `
+      <div id="finalDecisionBox">
+        <div class="decision-alert alert-blocked">
+          <div class="alert-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="alert-body">
+            <div class="alert-title">Load Failed</div>
+            <div class="alert-desc">${error.message}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+/* ── ACTIONS ─────────────────────────────────────────────────────── */
+async function unblockAndResend() {
+  if (!currentRequestId) return;
+  setActionMsg('info', '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Processing request…');
+
+  try {
+    const response = await fetch('/api/request-action/unblock-resend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: currentRequestId })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || 'Failed to unblock and resend request');
+
+    setActionMsg('success', '<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Request unblocked and resent successfully.');
+    await loadRequestDetails(currentRequestId);
+  } catch (error) {
+    console.error('Failed to unblock/resend:', error);
+    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + error.message);
+  }
+}
+
+async function markAsSafe() {
+  if (!currentRequestId) return;
+  setActionMsg('info', '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Updating request status…');
+
+  try {
+    const response = await fetch('/api/request-action/mark-safe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: currentRequestId })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || 'Failed to mark request as safe');
+
+    setActionMsg('success', '<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Request marked as safe successfully.');
+    await loadRequestDetails(currentRequestId);
+  } catch (error) {
+    console.error('Failed to mark safe:', error);
+    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + error.message);
+  }
+}
+
+/* ── INIT ────────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  // Active nav
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.getAttribute('href') === path) link.classList.add('active');
+  });
+
+  document.getElementById('unblockBtn').addEventListener('click', unblockAndResend);
+  document.getElementById('markSafeBtn').addEventListener('click', markAsSafe);
+
+  const params    = new URLSearchParams(window.location.search);
+  const requestId = params.get('id');
+  if (requestId) loadRequestDetails(requestId);
+});
+</script>
+
+</body>
+</html>

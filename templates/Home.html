@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Sentinel | Dashboard</title>
+  <link rel="icon" href="static/assets/API_Sentinel_Favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #f2f2f7;
+  --surface:      #ffffff;
+  --surface-2:    #f9f9fb;
+  --border:       rgba(0,0,0,0.07);
+  --text:         #1c1c1e;
+  --text-2:       #3a3a3c;
+  --muted:        #8e8e93;
+  --sidebar-w:    240px;
+
+  /* Semantic palette — Apple system colors */
+  --blue:         #007aff;
+  --blue-soft:    #e8f1ff;
+  --green:        #34c759;
+  --green-soft:   #e5f8eb;
+  --amber:        #ff9f0a;
+  --amber-soft:   #fff4e0;
+  --red:          #ff3b30;
+  --red-soft:     #ffeceb;
+  --purple:       #af52de;
+  --purple-soft:  #f5edff;
+  --teal:         #32ade6;
+  --teal-soft:    #e3f5fd;
+
+  --radius:       16px;
+  --radius-sm:    10px;
+  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+
+  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'DM Mono', ui-monospace, monospace;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────────────────────── */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  padding: 0 0 24px 0;
+}
+
+.sidebar-brand {
+  display: block;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.sidebar-brand .brand-icon {
+  width: 36px; height: 36px;
+  background: var(--blue);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
+}
+
+.sidebar-brand .brand-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.sidebar-brand .brand-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.sidebar-section {
+  padding: 20px 12px 4px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 8px;
+  margin-bottom: 4px;
+}
+
+.nav-item {
+  list-style: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+}
+
+.nav-link:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.nav-link.active {
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.nav-link .nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.nav-link.active .nav-icon { opacity: 1; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-footer-text {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.sidebar-footer-text a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+/* ─── MAIN CONTENT ───────────────────────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────────── */
+.topbar {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.topbar-left h1 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.015em;
+}
+
+.topbar-left p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-soft);
+  color: #1d8a3a;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.topbar-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* ─── PAGE CONTENT ───────────────────────────────────────────────────────────── */
+.page-content {
+  padding: 28px 32px;
+  flex: 1;
+}
+
+/* ─── METRIC CARDS ───────────────────────────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.metric-card.blue::before  { background: var(--blue); }
+.metric-card.green::before { background: var(--green); }
+.metric-card.amber::before { background: var(--amber); }
+.metric-card.red::before   { background: var(--red); }
+.metric-card.gray::before  { background: var(--muted); }
+.metric-card.purple::before{ background: var(--purple); }
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+
+.metric-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.metric-card.blue  .metric-icon { background: var(--blue-soft);   color: var(--blue); }
+.metric-card.green .metric-icon { background: var(--green-soft);  color: #1d8a3a; }
+.metric-card.amber .metric-icon { background: var(--amber-soft);  color: #c7760a; }
+.metric-card.red   .metric-icon { background: var(--red-soft);    color: #c0291f; }
+.metric-card.gray  .metric-icon { background: #f2f2f7;            color: var(--muted); }
+.metric-card.purple .metric-icon { background: var(--purple-soft); color: var(--purple); }
+
+.metric-value {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.metric-value sup {
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: super;
+  letter-spacing: 0;
+}
+
+.metric-label {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ─── CHARTS SECTION ─────────────────────────────────────────────────────────── */
+.charts-row {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ─── TABLE SECTION ──────────────────────────────────────────────────────────── */
+.section-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title .title-icon {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+}
+
+.section-body { padding: 20px; }
+
+/* ─── TABLE ──────────────────────────────────────────────────────────────────── */
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.requests-table thead th {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0 12px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.requests-table tbody tr {
+  border-top: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.requests-table tbody tr:hover { background: var(--surface-2); }
+
+.requests-table td {
+  padding: 11px 12px;
+  vertical-align: middle;
+  color: var(--text-2);
+}
+
+.ip-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.endpoint-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--blue);
+}
+
+.method-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+
+.method-get    { background: #eef4ff; color: #1d4ed8; }  /* Blue */
+.method-post   { background: #f0fdfa; color: #0f766e; }  /* Teal */
+.method-put    { background: #f5f3ff; color: #6d28d9; }  /* Purple */
+.method-delete { background: #fff7ed; color: #c2410c; }  /* Orange */
+.method-patch  { background: #fdf2f8; color: #be185d; }  /* Pink */
+/* ─── STATUS BADGES ──────────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.badge-normal     { background: var(--green-soft);  color: #1d8a3a; }
+.badge-suspicious { background: var(--amber-soft);  color: #c7760a; }
+.badge-malicious  { background: var(--red-soft);    color: #c0291f; }
+.badge-blocked    { background: #f2f2f7;             color: var(--muted); }
+
+.badge-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.badge-normal     .badge-dot { background: var(--green); }
+.badge-suspicious .badge-dot { background: var(--amber); }
+.badge-malicious  .badge-dot { background: var(--red); }
+.badge-blocked    .badge-dot { background: var(--muted); }
+
+.time-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ─── DATATABLES OVERRIDE ────────────────────────────────────────────────────── */
+div.dataTables_wrapper {
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+div.dataTables_wrapper div.dataTables_length label,
+div.dataTables_wrapper div.dataTables_filter label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+div.dataTables_wrapper div.dataTables_length select,
+div.dataTables_wrapper div.dataTables_filter input {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+}
+
+div.dataTables_wrapper div.dataTables_filter input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-soft);
+}
+
+div.dataTables_wrapper div.dataTables_info,
+div.dataTables_wrapper div.dataTables_paginate {
+  font-size: 12px;
+  color: var(--muted);
+  padding-top: 10px;
+}
+
+div.dataTables_wrapper div.dataTables_paginate .paginate_button {
+  border-radius: 7px !important;
+  padding: 4px 9px !important;
+  font-size: 12px !important;
+  border: none !important;
+}
+
+div.dataTables_wrapper div.dataTables_paginate .paginate_button.current {
+  background: var(--blue) !important;
+  color: white !important;
+  box-shadow: 0 2px 8px rgba(0,122,255,0.3) !important;
+}
+
+table.dataTable thead th {
+  border-bottom: 1px solid var(--border) !important;
+  font-size: 10.5px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted) !important;
+  font-weight: 600 !important;
+  background: var(--surface) !important;
+}
+
+table.dataTable tbody td { border-top: 1px solid var(--border) !important; }
+table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────────────────────── */
+.main-footer {
+  padding: 16px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--surface);
+}
+
+.main-footer a { color: var(--blue); text-decoration: none; }
+.main-footer a:hover { text-decoration: underline; }
+
+/* ─── CHART CONTAINER ────────────────────────────────────────────────────────── */
+.chart-wrap {
+  position: relative;
+  height: 240px;
+}
+
+/* ─── LEGEND ─────────────────────────────────────────────────────────────────── */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.legend-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1280px) {
+  .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+}
+
+/* ─── ENTRANCE ANIMATION ─────────────────────────────────────────────────────── */
+.fade-up {
+  animation: fadeUp 0.45s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.metric-card { animation: fadeUp 0.4s ease both; }
+.metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2) { animation-delay: 0.10s; }
+.metric-card:nth-child(3) { animation-delay: 0.15s; }
+.metric-card:nth-child(4) { animation-delay: 0.20s; }
+.metric-card:nth-child(5) { animation-delay: 0.25s; }
+.metric-card:nth-child(6) { animation-delay: 0.30s; }
+
+.charts-row, .section-card { animation: fadeUp 0.5s ease 0.3s both; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Monitor</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/" class="nav-link">
+            <i class="nav-icon fa-solid fa-gauge-high"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/live-requests" class="nav-link">
+            <i class="nav-icon fa-solid fa-wave-square"></i>
+            Live Requests
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/attack-analytics" class="nav-link">
+            <i class="nav-icon fa-solid fa-shield-virus"></i>
+            Attack Analytics
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analyze</div>
+      <ul style="list-style:none;">
+        <li class="nav-item">
+          <a href="/model-performance" class="nav-link">
+            <i class="nav-icon fa-solid fa-chart-line"></i>
+            Model Performance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/request-investigation" class="nav-link">
+            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
+            Investigation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/url-scanner" class="nav-link">
+            <i class="nav-icon fa-solid fa-link"></i>
+            URL Scanner
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Alerts</div>
+      <ul style="list-style:none;">
+        <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
+        API Sentinel
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Dashboard</h1>
+        <p>Overview of API traffic and threat detection</p>
+      </div>
+      <div class="topbar-right">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          System Online
+        </div>
+        <div class="topbar-time" id="liveClock">—</div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+
+      <!-- ── METRIC CARDS ──────────────────────────────────────────── -->
+      <div class="metrics-grid">
+
+        <div class="metric-card blue">
+          <div class="metric-icon"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+          <div class="metric-value" id="totalRequests">—</div>
+          <div class="metric-label">Total Requests</div>
+        </div>
+
+        <div class="metric-card green">
+          <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="metric-value" id="normalPercentage">—<sup>%</sup></div>
+          <div class="metric-label">Normal Requests</div>
+        </div>
+
+        <div class="metric-card amber">
+          <div class="metric-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div class="metric-value" id="suspiciousRequests">—</div>
+          <div class="metric-label">Suspicious Requests</div>
+        </div>
+
+        <div class="metric-card red">
+          <div class="metric-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+          <div class="metric-value" id="maliciousRequests">—</div>
+          <div class="metric-label">Malicious Requests</div>
+        </div>
+
+        <div class="metric-card gray">
+          <div class="metric-icon"><i class="fa-solid fa-ban"></i></div>
+          <div class="metric-value" id="blockedRequests">—</div>
+          <div class="metric-label">Blocked Requests</div>
+        </div>
+
+        <div class="metric-card purple">
+          <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
+          <div class="metric-value" id="detectionRate">—<sup>%</sup></div>
+          <div class="metric-label">Detection Rate</div>
+        </div>
+
+      </div>
+
+      <!-- ── CHARTS ROW ────────────────────────────────────────────── -->
+      <div class="charts-row">
+
+        <!-- Donut: Class Distribution -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--blue-soft);color:var(--blue);">
+                <i class="fa-solid fa-chart-pie"></i>
+              </div>
+              Class Distribution
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="chart-wrap">
+              <canvas id="donutChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Normal</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span>Suspicious</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Malicious</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line: Traffic Trend -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              Traffic Trend
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="chart-wrap">
+              <canvas id="lineChart"></canvas>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+              <span class="legend-dot" style="background:#34c759"></span>
+              Normal
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#ff9500"></span>
+              Suspicious
+            </div>
+
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#ff3b30"></span>
+              Malicious
+            </div>
+             
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── RECENT REQUESTS TABLE ─────────────────────────────────── -->
+      <div class="section-card fade-up" style="animation-delay:0.4s">
+        <div class="section-header">
+          <div class="section-title">
+            <div class="title-icon" style="background:var(--purple-soft);color:var(--purple);">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            Recent Requests
+          </div>
+        </div>
+        <div class="section-body">
+          <table id="example2" class="requests-table" style="width:100%">
+            <thead>
+              <tr>
+                <th>IP Address</th>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Response Time</th>
+              </tr>
+            </thead>
+            <tbody id="recentRequestsBody">
+              <tr>
+                <td><span class="ip-cell">192.168.1.1</span></td>
+                <td><span class="endpoint-cell">/api/login</span></td>
+                <td><span class="method-badge method-post">POST</span></td>
+                <td><span class="status-badge badge-malicious"><span class="badge-dot"></span>Malicious</span></td>
+                <td><span class="time-cell">120 ms</span></td>
+              </tr>
+              <tr>
+                <td><span class="ip-cell">192.168.1.5</span></td>
+                <td><span class="endpoint-cell">/api/data</span></td>
+                <td><span class="method-badge method-get">GET</span></td>
+                <td><span class="status-badge badge-normal"><span class="badge-dot"></span>Normal</span></td>
+                <td><span class="time-cell">45 ms</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="main-footer">
+      <span>API Sentinel &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a></span>
+      <span>Spring 2026</span>
+    </footer>
+
+  </div><!-- /.main -->
+</div><!-- /.layout -->
+
+
+<script>
+/* ── LIVE CLOCK ───────────────────────────────────────────────────── */
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveClock').textContent = now.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+  });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ── ACTIVE NAV ───────────────────────────────────────────────────── */
+function highlightActiveNav() {
+  const path = window.location.pathname;
+  document.querySelectorAll('.nav-link').forEach(link => {
+    if (link.getAttribute('href') === path) link.classList.add('active');
+  });
+}
+
+/* ── CHART HELPERS ────────────────────────────────────────────────── */
+let donutChartInstance = null;
+let lineChartInstance  = null;
+let tableInstance      = null;
+
+const chartDefaults = {
+  font: { family: "'DM Sans', sans-serif" }
+};
+
+Chart.defaults.font.family = chartDefaults.font.family;
+Chart.defaults.color = '#8e8e93';
+
+/* ── DATATABLE ────────────────────────────────────────────────────── */
+function initializeDataTable() {
+  if (tableInstance) { tableInstance.destroy(); }
+  tableInstance = $('#example2').DataTable({
+    responsive: true,
+    autoWidth: false,
+    pageLength: 5,
+    order: [[4, 'desc']],
+    columnDefs: [{ orderable: false, targets: 3 }],
+    language: {
+      search: '',
+      searchPlaceholder: 'Search requests…',
+      lengthMenu: 'Show _MENU_ rows',
+      info: 'Showing _START_–_END_ of _TOTAL_',
+    }
+  });
+}
+
+/* ── API LOADERS ──────────────────────────────────────────────────── */
+async function loadSummary() {
+  try {
+    const res  = await fetch('/api/dashboard/summary');
+    const data = await res.json();
+    if (!res.ok) { console.error('Summary API error:', data); return; }
+
+    document.getElementById('totalRequests').innerText       = data.total_requests ?? 0;
+    document.getElementById('normalPercentage').innerHTML    = (data.normal_percentage ?? 0) + '<sup>%</sup>';
+    document.getElementById('suspiciousRequests').innerText  = data.suspicious_requests ?? 0;
+    document.getElementById('maliciousRequests').innerText   = data.malicious_requests ?? 0;
+    document.getElementById('blockedRequests').innerText     = data.blocked_requests ?? 0;
+    document.getElementById('detectionRate').innerHTML       = (data.detection_rate ?? 0) + '<sup>%</sup>';
+  } catch (e) { console.error('Failed to load summary:', e); }
+}
+
+async function loadClassDistribution() {
+  try {
+    const res  = await fetch('/api/dashboard/class-distribution');
+    const data = await res.json();
+    if (!res.ok) { console.error('Class distribution API error:', data); return; }
+
+    const canvas = document.getElementById('donutChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (donutChartInstance) donutChartInstance.destroy();
+
+    donutChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Normal', 'Suspicious', 'Malicious'],
+        datasets: [{
+          data: [data.Normal || 0, data.Suspicious || 0, data.Malicious || 0],
+          backgroundColor: ['#34c759', '#ff9f0a', '#ff3b30'],
+          borderColor: '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `  ${ctx.label}: ${ctx.parsed.toLocaleString()}`
+            }
+          }
+        }
+      }
+    });
+  } catch (e) { console.error('Failed to load class distribution:', e); }
+}
+
+async function loadRecentRequests() {
+  try {
+    const res  = await fetch('/api/dashboard/recent-requests');
+    const data = await res.json();
+    if (!res.ok || !data.success) { console.error('Recent requests API error:', data); return; }
+
+    const tbody = document.getElementById('recentRequestsBody');
+    tbody.innerHTML = '';
+
+    (data.data || []).forEach(item => {
+      let badgeCls = 'badge-blocked';
+      if (item.status === 'normal')     badgeCls = 'badge-normal';
+      if (item.status === 'suspicious') badgeCls = 'badge-suspicious';
+      if (item.status === 'malicious')  badgeCls = 'badge-malicious';
+
+      const method = (item.method || 'GET').toUpperCase();
+      const methodCls = {
+        'GET':'method-get','POST':'method-post','PUT':'method-put',
+        'DELETE':'method-delete','PATCH':'method-patch'
+      }[method] || 'method-get';
+      const status = item.status || "";
+
+      const formattedStatus = status
+        ? status.charAt(0).toUpperCase() + status.slice(1)
+        : status;
+      tbody.innerHTML += `
+        <tr>
+          <td><span class="ip-cell">${item.ip_address ?? ''}</span></td>
+          <td><span class="endpoint-cell">${item.endpoint ?? ''}</span></td>
+          <td><span class="method-badge ${methodCls}">${method}</span></td>
+          <td><span class="status-badge ${badgeCls}"><span class="badge-dot"></span>${formattedStatus?? 'Unknown'}</span></td>
+          <td><span class="time-cell">${item.response_time_ms ?? 0} ms</span></td>
+        </tr>`;
+    });
+
+    initializeDataTable();
+  } catch (e) { console.error('Failed to load recent requests:', e); }
+}
+async function loadTrafficTrend() {
+  try {
+    const res  = await fetch('/api/dashboard/traffic-trend');
+    const data = await res.json();
+    if (!res.ok) { console.error('Traffic trend API error:', data); return; }
+
+    const canvas = document.getElementById('lineChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (lineChartInstance) lineChartInstance.destroy();
+
+    /* gradient fills */
+    const gradGreen = ctx.createLinearGradient(0, 0, 0, 220);
+    gradGreen.addColorStop(0, 'rgba(52,199,89,0.18)');
+    gradGreen.addColorStop(1, 'rgba(52,199,89,0)');
+
+    const gradRed = ctx.createLinearGradient(0, 0, 0, 220);
+    gradRed.addColorStop(0, 'rgba(255,59,48,0.15)');
+    gradRed.addColorStop(1, 'rgba(255,59,48,0)');
+
+    const gradOrange = ctx.createLinearGradient(0, 0, 0, 220);
+    gradOrange.addColorStop(0, 'rgba(255,149,0,0.18)');
+    gradOrange.addColorStop(1, 'rgba(255,149,0,0)');
+
+    lineChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels || [],
+        datasets: [
+          {
+            label: 'Normal',
+            data: data.normal || [],
+            borderColor: '#34c759',
+            backgroundColor: gradGreen,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#34c759',
+            borderWidth: 2
+          },
+          {
+            label: 'Suspicious',
+            data: data.suspicious || [],
+            borderColor: '#ff9500',
+            backgroundColor: gradOrange,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#ff9500',
+            borderWidth: 2
+          },
+          {
+            label: 'Malicious',
+            data: data.malicious || [],
+            borderColor: '#ff3b30',
+            backgroundColor: gradRed,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#ff3b30',
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+            ticks: { font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+            ticks: { font: { size: 11 } }
+          }
+        }
+      }
+    });
+  } catch (e) { console.error('Failed to load traffic trend:', e); }
+}
+async function loadDashboard() {
+  await loadSummary();
+  await loadClassDistribution();
+  await loadRecentRequests();
+  await loadTrafficTrend();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  highlightActiveNav();
+  loadDashboard();
+});
+</script>
+
+</body>
+</html>
