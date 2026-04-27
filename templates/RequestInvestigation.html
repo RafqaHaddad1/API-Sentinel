@@ -363,6 +363,19 @@ html, body {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+.btn-label-normal     { background: var(--green);  color: white; box-shadow: 0 2px 10px rgba(52,199,89,0.25); }
+.btn-label-normal:hover     { background: #28b04a; }
+
+.btn-label-suspicious { background: var(--amber);  color: white; box-shadow: 0 2px 10px rgba(255,159,10,0.28); }
+.btn-label-suspicious:hover { background: #e08c00; }
+
+.btn-label-malicious  { background: var(--red);    color: white; box-shadow: 0 2px 10px rgba(255,59,48,0.28); }
+.btn-label-malicious:hover  { background: #e03127; }
+
+.btn-retrain          { background: var(--purple); color: white; box-shadow: 0 2px 10px rgba(175,82,222,0.25); }
+.btn-retrain:hover    { background: #9540c4; }
+.btn-retrain:disabled { background: var(--muted);  cursor: not-allowed; transform: none; }
 </style>
 </head>
 <body>
@@ -576,11 +589,25 @@ html, body {
               <div id="finalDecisionBox" class="decision-alert alert-unknown">
                 <div class="alert-icon"><i class="fa-solid fa-circle-question"></i></div>
                 <div class="alert-body">
-                  <div class="alert-title">No Decision Available</div>
-                  <div class="alert-desc">Load a request to see the final verdict.</div>
                 </div>
+
               </div>
 
+              <!-- Label picker -->
+              <div class="field-label" style="margin-top: 8px;">Override Classification</div>
+              <div class="action-row" style="margin-bottom: 12px;">
+                <button class="btn-action btn-label-normal" data-label="normal">
+                  <i class="fa-solid fa-circle-check"></i> Normal
+                </button>
+                <button class="btn-action btn-label-suspicious" data-label="suspicious">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Suspicious
+                </button>
+                <button class="btn-action btn-label-malicious" data-label="malicious">
+                  <i class="fa-solid fa-skull-crossbones"></i> Malicious
+                </button>
+              </div>
+
+              <!-- Action buttons -->
               <div class="action-row">
                 <button id="unblockBtn" class="btn-action btn-unblock" style="display:none;">
                   <i class="fa-solid fa-circle-play"></i> Unblock &amp; Resend
@@ -588,12 +615,15 @@ html, body {
                 <button id="markSafeBtn" class="btn-action btn-safe" style="display:none;">
                   <i class="fa-solid fa-shield-check"></i> Mark as Safe
                 </button>
+                <button id="retrainBtn" class="btn-action btn-retrain">
+                  <i class="fa-solid fa-arrows-rotate"></i> Retrain Model
+                </button>
               </div>
 
               <div id="actionMessage"></div>
             </div>
           </div>
-
+            
         </div><!-- /right col -->
 
         <!-- ══════════════════════════════════════════════════ -->
@@ -789,7 +819,57 @@ async function loadRequestDetails(requestId) {
       </div>`;
   }
 }
+/* ── LABEL OVERRIDE ──────────────────────────────────────────────── */
+async function submitLabel(label) {
+  if (!currentRequestId) {
+    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>No request loaded.');
+    return;
+  }
+  setActionMsg('info', `<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Saving "${label}" label…`);
 
+  try {
+    const response = await fetch('/api/request-action/label', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: currentRequestId, label: label })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || 'Failed to save label');
+
+    setActionMsg('success',
+      `<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Label saved as <b>${label}</b>. This feedback will be used in the next retraining.`);
+    await loadRequestDetails(currentRequestId);
+  } catch (error) {
+    console.error('Failed to save label:', error);
+    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + error.message);
+  }
+}
+
+/* ── RETRAIN MODEL ───────────────────────────────────────────────── */
+async function retrainModel() {
+  const btn = document.getElementById('retrainBtn');
+  if (!confirm('Retrain the model now using all collected feedback labels? This may take a minute.')) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Retraining…';
+  setActionMsg('info', '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Model retraining in progress. Please wait…');
+
+  try {
+    const response = await fetch('/api/retrain', { method: 'POST' });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || result.message || 'Retraining failed');
+
+    const acc = result.accuracy ? ` (accuracy: ${(result.accuracy * 100).toFixed(2)}%)` : '';
+    setActionMsg('success',
+      `<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Model retrained successfully${acc}.`);
+  } catch (error) {
+    console.error('Retraining failed:', error);
+    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + error.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Retrain Model';
+  }
+}
 /* ── ACTIONS ─────────────────────────────────────────────────────── */
 async function unblockAndResend() {
   if (!currentRequestId) return;
@@ -843,6 +923,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('unblockBtn').addEventListener('click', unblockAndResend);
   document.getElementById('markSafeBtn').addEventListener('click', markAsSafe);
+  document.getElementById('retrainBtn').addEventListener('click', retrainModel);
+
+  // Label override buttons (Normal / Suspicious / Malicious)
+  document.querySelectorAll('[data-label]').forEach(btn => {
+    btn.addEventListener('click', () => submitLabel(btn.dataset.label));
+  });
 
   const params    = new URLSearchParams(window.location.search);
   const requestId = params.get('id');

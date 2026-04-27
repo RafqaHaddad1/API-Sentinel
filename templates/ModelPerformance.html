@@ -475,22 +475,22 @@ html, body {
         <div class="metrics-grid">
           <div class="metric-card blue">
             <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
-            <div class="metric-value">85%</div>
+            <div class="metric-value" id="sup-accuracy">--</div>
             <div class="metric-label">Accuracy</div>
           </div>
           <div class="metric-card green">
             <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="metric-value">77%</div>
+            <div class="metric-value" id="sup-precision">--</div>
             <div class="metric-label">Precision</div>
           </div>
           <div class="metric-card amber">
             <div class="metric-icon"><i class="fa-solid fa-magnet"></i></div>
-            <div class="metric-value">91%</div>
+            <div class="metric-value" id="sup-recall">--</div>
             <div class="metric-label">Recall</div>
           </div>
           <div class="metric-card red">
             <div class="metric-icon"><i class="fa-solid fa-star-half-stroke"></i></div>
-            <div class="metric-value">84%</div>
+            <div class="metric-value" id="sup-f1">--</div>
             <div class="metric-label">F1 Score</div>
           </div>
         </div>
@@ -530,11 +530,11 @@ html, body {
             <div class="section-body">
               <div class="stat-pair">
                 <div class="stat-box amber-box">
-                  <div class="stat-num">463</div>
+                  <div class="stat-num" id="sup-fp">--</div>
                   <div class="stat-lbl">False Positives</div>
                 </div>
                 <div class="stat-box red-box">
-                  <div class="stat-num">1,324</div>
+                  <div class="stat-num" id="sup-fn">--</div>
                   <div class="stat-lbl">False Negatives</div>
                 </div>
               </div>
@@ -561,22 +561,22 @@ html, body {
         <div class="metrics-grid">
           <div class="metric-card blue">
             <div class="metric-icon"><i class="fa-solid fa-chart-simple"></i></div>
-            <div class="metric-value">0.81</div>
+            <div class="metric-value" id="unsup-avg-score">--</div>
             <div class="metric-label">Anomaly Score Avg</div>
           </div>
           <div class="metric-card green">
             <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
-            <div class="metric-value">92%</div>
+            <div class="metric-value" id="unsup-normal-fit">--</div>
             <div class="metric-label">Normal Pattern Fit</div>
           </div>
           <div class="metric-card amber">
             <div class="metric-icon"><i class="fa-solid fa-flag"></i></div>
-            <div class="metric-value">138</div>
+            <div class="metric-value" id="unsup-flagged">--</div>
             <div class="metric-label">Anomalies Flagged</div>
           </div>
           <div class="metric-card red">
             <div class="metric-icon"><i class="fa-solid fa-radiation"></i></div>
-            <div class="metric-value">21</div>
+            <div class="metric-value" id="unsup-high-risk">--</div>
             <div class="metric-label">High-Risk Outliers</div>
           </div>
         </div>
@@ -639,22 +639,22 @@ html, body {
         <div class="metrics-grid">
           <div class="metric-card blue">
             <div class="metric-icon"><i class="fa-solid fa-bell"></i></div>
-            <div class="metric-value">64</div>
+            <div class="metric-value" id="mitm-alerts">--</div>
             <div class="metric-label">MITM Alerts</div>
           </div>
           <div class="metric-card green">
             <div class="metric-icon"><i class="fa-solid fa-code"></i></div>
-            <div class="metric-value">47</div>
+            <div class="metric-value" id="mitm-replay">--</div>
             <div class="metric-label">Header Tampering</div>
           </div>
           <div class="metric-card amber">
             <div class="metric-icon"><i class="fa-solid fa-file-pen"></i></div>
-            <div class="metric-value">26</div>
+            <div class="metric-value" id="mitm-ip-changes">--</div>
             <div class="metric-label">Payload Changes</div>
           </div>
           <div class="metric-card red">
             <div class="metric-icon"><i class="fa-solid fa-key"></i></div>
-            <div class="metric-value">11</div>
+            <div class="metric-value" id="mitm-sequence">--</div>
             <div class="metric-label">Token Mismatch</div>
           </div>
         </div>
@@ -743,111 +743,231 @@ function switchTab(id, btn) {
 }
 
 /* ── CHART DEFAULTS ──────────────────────────────────────────────── */
+/* ── CHART DEFAULTS ──────────────────────────────────────────────── */
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color = '#8e8e93';
 
-/* ── SUPERVISED — CONFUSION MATRIX ──────────────────────────────── */
-new Chart(document.getElementById('supervisedConfusionChart'), {
-  type: 'bar',
-  data: {
-    labels: ['True Positive', 'False Positive', 'True Negative', 'False Negative'],
-    datasets: [{
-      label: 'Count',
-      data: [4550, 463, 5876, 1324],
-      backgroundColor: ['#34c759', '#ff9f0a', '#32ade6', '#ff3b30'],
-      borderRadius: 8,
-      borderSkipped: false
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false } },
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-        ticks: { font: { size: 11 } }
+let supervisedChartInstance = null;
+let unsupervisedChartInstance = null;
+let mitmChartInstance = null;
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function formatPercent(value) {
+  return `${(Number(value || 0) * 100).toFixed(2)}%`;
+}
+
+function formatNumber(value) {
+  return `${Number(value || 0)}`;
+}
+
+function formatDecimal(value) {
+  return `${Number(value || 0).toFixed(2)}`;
+}
+
+/* ── SUPERVISED CHART ───────────────────────────────────────────── */
+function renderSupervisedChart(data) {
+  const ctx = document.getElementById('supervisedConfusionChart');
+  if (!ctx) return;
+
+  if (supervisedChartInstance) supervisedChartInstance.destroy();
+
+  supervisedChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['True Positive', 'False Positive', 'True Negative', 'False Negative'],
+      datasets: [{
+        label: 'Count',
+        data: [
+          data.true_positive || 0,
+          data.false_positive || 0,
+          data.true_negative || 0,
+          data.false_negative || 0
+        ],
+        backgroundColor: ['#34c759', '#ff9f0a', '#32ade6', '#ff3b30'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11 } }
+        }
       }
     }
-  }
-});
+  });
+}
 
-/* ── UNSUPERVISED — ANOMALY SCORES ───────────────────────────────── */
-const ctx2 = document.getElementById('unsupervisedChart').getContext('2d');
+/* ── UNSUPERVISED CHART ─────────────────────────────────────────── */
+function renderUnsupervisedChart(trend) {
+  const ctx = document.getElementById('unsupervisedChart');
+  if (!ctx) return;
 
-const gradG = ctx2.createLinearGradient(0, 0, 0, 280);
-gradG.addColorStop(0, 'rgba(52,199,89,0.18)');
-gradG.addColorStop(1, 'rgba(52,199,89,0)');
+  if (unsupervisedChartInstance) unsupervisedChartInstance.destroy();
 
-const gradR = ctx2.createLinearGradient(0, 0, 0, 280);
-gradR.addColorStop(0, 'rgba(255,59,48,0.15)');
-gradR.addColorStop(1, 'rgba(255,59,48,0)');
+  const chartCtx = ctx.getContext('2d');
 
-new Chart(ctx2, {
-  type: 'line',
-  data: {
-    labels: ['Batch 1', 'Batch 2', 'Batch 3', 'Batch 4', 'Batch 5', 'Batch 6'],
-    datasets: [
-      {
-        label: 'Normal Score',
-        data: [0.92, 0.90, 0.88, 0.93, 0.91, 0.89],
-        borderColor: '#34c759', backgroundColor: gradG,
-        fill: true, tension: 0.4,
-        pointRadius: 4, pointBackgroundColor: '#34c759', borderWidth: 2
-      },
-      {
-        label: 'Anomaly Score',
-        data: [0.15, 0.22, 0.61, 0.18, 0.77, 0.84],
-        borderColor: '#ff3b30', backgroundColor: gradR,
-        fill: true, tension: 0.4,
-        pointRadius: 4, pointBackgroundColor: '#ff3b30', borderWidth: 2
-      }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      y: {
-        beginAtZero: true, max: 1,
-        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-        ticks: { font: { size: 11 } }
-      }
-    }
-  }
-});
+  const gradG = chartCtx.createLinearGradient(0, 0, 0, 280);
+  gradG.addColorStop(0, 'rgba(52,199,89,0.18)');
+  gradG.addColorStop(1, 'rgba(52,199,89,0)');
 
-/* ── MITM — BAR CHART ────────────────────────────────────────────── */
-new Chart(document.getElementById('mitmChart'), {
-  type: 'bar',
-  data: {
-    labels: ['Header Tampering', 'Payload Changes', 'Token Mismatch', 'TLS Downgrade', 'Replay Pattern'],
-    datasets: [{
-      label: 'Detections',
-      data: [47, 26, 11, 8, 14],
-      backgroundColor: ['#32ade6', '#ff9f0a', '#ff3b30', '#af52de', '#ff6b35'],
-      borderRadius: 8,
-      borderSkipped: false
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-      y: {
-        beginAtZero: true,
-        grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-        ticks: { font: { size: 11 } }
+  const gradR = chartCtx.createLinearGradient(0, 0, 0, 280);
+  gradR.addColorStop(0, 'rgba(255,59,48,0.15)');
+  gradR.addColorStop(1, 'rgba(255,59,48,0)');
+
+  unsupervisedChartInstance = new Chart(chartCtx, {
+    type: 'line',
+    data: {
+      labels: trend.labels || [],
+      datasets: [
+        {
+          label: 'Normal Score',
+          data: trend.normal_scores || [],
+          borderColor: '#34c759',
+          backgroundColor: gradG,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#34c759',
+          borderWidth: 2
+        },
+        {
+          label: 'Anomaly Score',
+          data: trend.anomaly_scores || [],
+          borderColor: '#ff3b30',
+          backgroundColor: gradR,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#ff3b30',
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: {
+          beginAtZero: true,
+          max: 1,
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11 } }
+        }
       }
     }
-  }
-});
+  });
+}
 
-document.addEventListener('DOMContentLoaded', highlightActiveNav);
+/* ── MITM CHART ─────────────────────────────────────────────────── */
+function renderMitmChart(metrics) {
+  const ctx = document.getElementById('mitmChart');
+  if (!ctx) return;
+
+  if (mitmChartInstance) mitmChartInstance.destroy();
+
+  mitmChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Replay Events', 'IP Changes', 'User-Agent Changes', 'Sequence Anomalies', 'High Hijack Events'],
+      datasets: [{
+        label: 'Detections',
+        data: [
+          metrics.replay_events || 0,
+          metrics.ip_changes || 0,
+          metrics.user_agent_changes || 0,
+          metrics.sequence_anomalies || 0,
+          metrics.high_hijack_events || 0
+        ],
+        backgroundColor: ['#32ade6', '#ff9f0a', '#ff3b30', '#af52de', '#ff6b35'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+          ticks: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+/* ── LOAD DATA ──────────────────────────────────────────────────── */
+async function loadModelPerformance() {
+  try {
+    const res = await fetch('/api/model-performance/all');
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      console.error('Model performance API error:', data);
+      return;
+    }
+
+    const sup = data.supervised || {};
+    const unsup = data.unsupervised || {};
+    const mitm = data.mitm || {};
+
+    // Supervised metrics
+    setText('sup-accuracy', formatPercent(sup.accuracy));
+    setText('sup-precision', formatPercent(sup.precision));
+    setText('sup-recall', formatPercent(sup.recall));
+    setText('sup-f1', formatPercent(sup.f1_score));
+    setText('sup-fp', formatNumber(sup.false_positive));
+    setText('sup-fn', formatNumber(sup.false_negative));
+
+    renderSupervisedChart(sup);
+
+    // Unsupervised metrics
+    setText('unsup-avg-score', formatDecimal(unsup.avg_anomaly_score));
+    setText('unsup-normal-fit', formatPercent(unsup.normal_pattern_fit));
+    setText('unsup-flagged', formatNumber(unsup.anomalies_flagged));
+    setText('unsup-high-risk', formatNumber(unsup.high_risk_outliers));
+
+    // If you also added the dedicated unsupervised trend endpoint, use that
+    const unsupRes = await fetch('/api/model-performance/unsupervised');
+    const unsupData = await unsupRes.json();
+    if (unsupRes.ok && unsupData.success) {
+      renderUnsupervisedChart(unsupData.trend || { labels: [], normal_scores: [], anomaly_scores: [] });
+    }
+
+    // MiTM metrics
+    setText('mitm-alerts', formatNumber(mitm.mitm_alerts));
+    setText('mitm-replay', formatNumber(mitm.replay_events));
+    setText('mitm-ip-changes', formatNumber(mitm.ip_changes));
+    setText('mitm-sequence', formatNumber(mitm.sequence_anomalies));
+
+    renderMitmChart(mitm);
+
+  } catch (err) {
+    console.error('Failed to load model performance:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  highlightActiveNav();
+  loadModelPerformance();
+});
 </script>
 
 </body>

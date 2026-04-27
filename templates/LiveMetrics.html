@@ -693,7 +693,6 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
               <option value="normal">Normal</option>
               <option value="suspicious">Suspicious</option>
               <option value="malicious">Malicious</option>
-              <option value="blocked">Blocked</option>
             </select>
           </div>
 
@@ -713,10 +712,10 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
       <!-- ── LIVE TABLE ──────────────────────────────────────────────── -->
       <div class="section-card">
         <div class="section-header">
-              <button onclick="retrainModel()" 
+              <!-- <button onclick="retrainModel()" 
                     style="margin-left:auto;background:#007aff;color:white;border:none;padding:6px 12px;border-radius:6px;">
               Retrain
-            </button>
+            </button> -->
           <div class="section-title">
             <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
               <i class="fa-solid fa-table-list"></i>
@@ -738,10 +737,9 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
                 <th>Endpoint</th>
                 <th>Method</th>
                 <th>Status</th>
-                <th>Decision</th>
                 <th>Response Time</th>
                 <th>Details</th>
-                <th>Actions</th>
+                <!-- <th>Actions</th> -->
               </tr>
             </thead>
             <tbody id="tableBody">
@@ -796,11 +794,11 @@ function getMethodBadge(method) {
 
 function getStatusBadge(row) {
   const status   = (row.predicted_class || '').toLowerCase();
-  const decision = (row.decision || '').toLowerCase();
+  // const decision = (row.decision || '').toLowerCase();
 
-  if (decision === 'blocked' || decision === 'block') {
-    return '<span class="status-badge badge-blocked"><span class="badge-dot"></span>Blocked</span>';
-  }
+  // if (decision === 'blocked' || decision === 'block') {
+  //   return '<span class="status-badge badge-blocked"><span class="badge-dot"></span>Blocked</span>';
+  // }
   if (status === 'malicious') {
     return '<span class="status-badge badge-malicious"><span class="badge-dot"></span>Malicious</span>';
   }
@@ -873,36 +871,8 @@ async function loadRequests() {
         <td><span class="endpoint-cell">${row.path ?? ''}</span></td>
         <td>${getMethodBadge(row.method)}</td>
         <td>${getStatusBadge(row)}</td>
-        <td>${getDecisionBadge(row.decision)}</td>
         <td><span class="time-cell">${row.response_time_ms ?? 0} ms</span></td>
         <td><a class="view-link" href="/request-investigation?id=${row.id}"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a></td>
-      <td>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <button onclick="labelRequest('${row.id}', 'normal')"
-            style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;background:#e5f8eb;color:#1d8a3a;transition:background 0.15s,transform 0.12s;"
-            onmouseover="this.style.background='#c8f0d5'" onmouseout="this.style.background='#e5f8eb'"
-            onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
-            <span style="width:5px;height:5px;border-radius:50%;background:#34c759;flex-shrink:0;display:inline-block;"></span>
-            Normal
-          </button>
-
-          <button onclick="labelRequest('${row.id}', 'suspicious')"
-            style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;background:#fff4e0;color:#c7760a;transition:background 0.15s,transform 0.12s;"
-            onmouseover="this.style.background='#fde8b8'" onmouseout="this.style.background='#fff4e0'"
-            onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
-            <span style="width:5px;height:5px;border-radius:50%;background:#ff9f0a;flex-shrink:0;display:inline-block;"></span>
-            Suspicious
-          </button>
-
-          <button onclick="labelRequest('${row.id}', 'malicious')"
-            style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:none;border-radius:999px;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;background:#ffeceb;color:#c0291f;transition:background 0.15s,transform 0.12s;"
-            onmouseover="this.style.background='#fdd5d3'" onmouseout="this.style.background='#ffeceb'"
-            onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
-            <span style="width:5px;height:5px;border-radius:50%;background:#ff3b30;flex-shrink:0;display:inline-block;"></span>
-            Malicious
-          </button>
-        </div>
-      </td>
       `;
       tableBody.appendChild(tr);
     });
@@ -932,20 +902,6 @@ async function labelRequest(id, label) {
 
   } catch (err) {
     console.error("Label error:", err);
-  }
-}
-
-async function retrainModel() {
-  try {
-    const res = await fetch("/api/retrain", {
-      method: "POST"
-    });
-
-    const data = await res.json();
-    alert(data.message);
-
-  } catch (err) {
-    console.error("Retrain error:", err);
   }
 }
 

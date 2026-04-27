@@ -27,7 +27,6 @@
   --muted:        #8e8e93;
   --sidebar-w:    240px;
 
-  /* Semantic palette — Apple system colors */
   --blue:         #007aff;
   --blue-soft:    #e8f1ff;
   --green:        #34c759;
@@ -58,352 +57,156 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── LAYOUT ────────────────────────────────────────────────────────────────── */
-.layout {
-  display: flex;
-  min-height: 100vh;
-}
+.layout { display: flex; min-height: 100vh; }
 
-/* ─── SIDEBAR ────────────────────────────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
   background: var(--surface);
   border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  z-index: 100;
-  padding: 0 0 24px 0;
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; bottom: 0;
+  z-index: 100; padding: 0 0 24px 0;
 }
 
-.sidebar-brand {
-  display: block;
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--border);
-}
+.sidebar-brand { display: block; padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
+.sidebar-logo-img { width: 100%; max-width: 200px; height: auto; display: block; margin: 0 auto; }
 
-.sidebar-logo-img {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-.sidebar-brand .brand-icon {
-  width: 36px; height: 36px;
-  background: var(--blue);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: white;
-  font-size: 16px;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
-}
-
-.sidebar-brand .brand-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-
-.sidebar-brand .brand-sub {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 400;
-}
-
-.sidebar-section {
-  padding: 20px 12px 4px;
-}
-
+.sidebar-section { padding: 20px 12px 4px; }
 .sidebar-section-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding: 0 8px;
-  margin-bottom: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); padding: 0 8px; margin-bottom: 4px;
 }
 
-.nav-item {
-  list-style: none;
-}
-
+.nav-item { list-style: none; }
 .nav-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text-2);
-  text-decoration: none;
-  transition: background 0.15s, color 0.15s;
-  margin-bottom: 2px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  font-size: 13.5px; font-weight: 500; color: var(--text-2);
+  text-decoration: none; transition: background 0.15s, color 0.15s; margin-bottom: 2px;
 }
-
-.nav-link:hover {
-  background: var(--bg);
-  color: var(--text);
-}
-
-.nav-link.active {
-  background: var(--blue-soft);
-  color: var(--blue);
-  font-weight: 600;
-}
-
-.nav-link .nav-icon {
-  width: 20px;
-  text-align: center;
-  font-size: 13px;
-  opacity: 0.75;
-}
-
+.nav-link:hover { background: var(--bg); color: var(--text); }
+.nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+.nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
 .nav-link.active .nav-icon { opacity: 1; }
 
-.sidebar-footer {
-  margin-top: auto;
-  padding: 16px 20px 0;
-  border-top: 1px solid var(--border);
-}
+.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
+.sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
+.sidebar-footer-text a { color: var(--blue); text-decoration: none; }
 
-.sidebar-footer-text {
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.6;
-}
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-.sidebar-footer-text a {
-  color: var(--blue);
-  text-decoration: none;
-}
-
-/* ─── MAIN CONTENT ───────────────────────────────────────────────────────────── */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ─── TOPBAR ─────────────────────────────────────────────────────────────────── */
 .topbar {
   background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 0 32px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 90;
+  padding: 0 32px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 90;
 }
 
-.topbar-left h1 {
-  font-size: 17px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.015em;
-}
-
-.topbar-left p {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
+.topbar-left p  { font-size: 12px; color: var(--muted); }
+.topbar-right   { display: flex; align-items: center; gap: 12px; }
 
 .status-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--red-soft);
-  color: #c0392b;
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--red-soft); color: #c0392b;
+  border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 600;
 }
-
 .status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--red);
+  width: 7px; height: 7px; border-radius: 50%; background: var(--red);
   animation: pulse 2s ease infinite;
 }
-
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.55; transform: scale(0.8); }
+  50%      { opacity: 0.55; transform: scale(0.8); }
 }
+.topbar-time { font-size: 12px; color: var(--muted); font-family: var(--mono); }
 
-.topbar-time {
-  font-size: 12px;
-  color: var(--muted);
-  font-family: var(--mono);
-}
+.page-content { padding: 28px 32px; flex: 1; }
 
-/* ─── PAGE CONTENT ───────────────────────────────────────────────────────────── */
-.page-content {
-  padding: 28px 32px;
-  flex: 1;
-}
-
-/* ─── STAT STRIP ─────────────────────────────────────────────────────────────── */
 .stat-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 24px;
 }
 
 .stat-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  gap: 14px;
+  background: var(--surface); border-radius: var(--radius);
+  padding: 18px 20px; box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 14px;
+  min-width: 0;
 }
 
 .stat-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
+  width: 44px; height: 44px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+  font-size: 18px; flex-shrink: 0;
 }
-
 .stat-icon.red    { background: var(--red-soft);    color: var(--red); }
 .stat-icon.amber  { background: var(--amber-soft);  color: var(--amber); }
-.stat-icon.green  { background: var(--green-soft);  color: var(--green); }
+.stat-icon.teal   { background: var(--teal-soft);   color: var(--teal); }
 .stat-icon.purple { background: var(--purple-soft); color: var(--purple); }
 
-.stat-body {}
+.stat-body { min-width: 0; flex: 1; }
 .stat-value {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.02em; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 500;
-  margin-top: 2px;
-}
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
 
-/* ─── CHARTS GRID ────────────────────────────────────────────────────────────── */
 .charts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: grid; grid-template-columns: 1fr 1fr;
   gap: 18px;
 }
+.chart-card.full-width { grid-column: 1 / -1; }
 
 .chart-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden;
+  display: flex; flex-direction: column;
 }
 
 .chart-card-header {
-  padding: 18px 22px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
 }
-
 .chart-card-icon {
-  width: 32px; height: 32px;
-  border-radius: 9px;
+  width: 32px; height: 32px; border-radius: 9px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
+  font-size: 14px; flex-shrink: 0;
 }
-
 .chart-card-icon.red    { background: var(--red-soft);    color: var(--red); }
 .chart-card-icon.amber  { background: var(--amber-soft);  color: var(--amber); }
 .chart-card-icon.teal   { background: var(--teal-soft);   color: var(--teal); }
 .chart-card-icon.green  { background: var(--green-soft);  color: var(--green); }
 
-.chart-card-title {
-  font-size: 14px;
-  font-weight: 650;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
+.chart-card-title { font-size: 14px; font-weight: 650; color: var(--text); letter-spacing: -0.01em; }
+.chart-card-sub   { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.chart-card-body  { padding: 20px 22px 22px; flex: 1; }
+.chart-canvas-wrap { position: relative; height: 270px; }
+.chart-canvas-wrap.tall { height: 380px; }
 
-.chart-card-sub {
-  font-size: 11.5px;
-  color: var(--muted);
-  margin-top: 1px;
-}
-
-.chart-card-body {
-  padding: 20px 22px 22px;
-  flex: 1;
-}
-
-.chart-canvas-wrap {
-  position: relative;
-  height: 270px;
-}
-
-/* ─── FOOTER ──────────────────────────────────────────────────────────────────── */
 .main-footer {
-  padding: 16px 32px;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--muted);
+  padding: 16px 32px; border-top: 1px solid var(--border); background: var(--surface);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--muted);
 }
+.main-footer a { color: var(--blue); text-decoration: none; }
 
-.main-footer a {
-  color: var(--blue);
-  text-decoration: none;
-}
-
-/* ─── FADE-IN ─────────────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 .stat-card  { animation: fadeUp 0.4s ease both; }
 .stat-card:nth-child(1) { animation-delay: 0.04s; }
 .stat-card:nth-child(2) { animation-delay: 0.08s; }
 .stat-card:nth-child(3) { animation-delay: 0.12s; }
 .stat-card:nth-child(4) { animation-delay: 0.16s; }
-
 .chart-card { animation: fadeUp 0.45s ease both; }
 .chart-card:nth-child(1) { animation-delay: 0.18s; }
 .chart-card:nth-child(2) { animation-delay: 0.22s; }
 .chart-card:nth-child(3) { animation-delay: 0.26s; }
-.chart-card:nth-child(4) { animation-delay: 0.30s; }
 </style>
 </head>
 <body>
@@ -419,48 +222,18 @@ html, body {
     <div class="sidebar-section">
       <div class="sidebar-section-label">Monitor</div>
       <ul style="list-style:none;">
-        <li class="nav-item">
-          <a href="/" class="nav-link">
-            <i class="nav-icon fa-solid fa-gauge-high"></i>
-            Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/live-requests" class="nav-link">
-            <i class="nav-icon fa-solid fa-wave-square"></i>
-            Live Requests
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/attack-analytics" class="nav-link">
-            <i class="nav-icon fa-solid fa-shield-virus"></i>
-            Attack Analytics
-          </a>
-        </li>
+        <li class="nav-item"><a href="/" class="nav-link"><i class="nav-icon fa-solid fa-gauge-high"></i>Dashboard</a></li>
+        <li class="nav-item"><a href="/live-requests" class="nav-link"><i class="nav-icon fa-solid fa-wave-square"></i>Live Requests</a></li>
+        <li class="nav-item"><a href="/attack-analytics" class="nav-link"><i class="nav-icon fa-solid fa-shield-virus"></i>Attack Analytics</a></li>
       </ul>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Analyze</div>
       <ul style="list-style:none;">
-        <li class="nav-item">
-          <a href="/model-performance" class="nav-link">
-            <i class="nav-icon fa-solid fa-chart-line"></i>
-            Model Performance
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/request-investigation" class="nav-link">
-            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
-            Investigation
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/url-scanner" class="nav-link">
-            <i class="nav-icon fa-solid fa-link"></i>
-            URL Scanner
-          </a>
-        </li>
+        <li class="nav-item"><a href="/model-performance" class="nav-link"><i class="nav-icon fa-solid fa-chart-line"></i>Model Performance</a></li>
+        <li class="nav-item"><a href="/request-investigation" class="nav-link"><i class="nav-icon fa-solid fa-magnifying-glass"></i>Investigation</a></li>
+        <li class="nav-item"><a href="/url-scanner" class="nav-link"><i class="nav-icon fa-solid fa-link"></i>URL Scanner</a></li>
       </ul>
     </div>
     <div class="sidebar-section">
@@ -476,14 +249,14 @@ html, body {
       </div>
     </div>
   </aside>
+
   <!-- ─── MAIN ─────────────────────────────────────────────────────── -->
   <div class="main">
 
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-left">
         <h1>Attack Analytics</h1>
-        <p>Threat breakdown, top malicious sources &amp; blocked trends</p>
+        <p>Threat breakdown, top malicious sources &amp; targeted endpoints</p>
       </div>
       <div class="topbar-right">
         <div class="status-pill">
@@ -494,7 +267,6 @@ html, body {
       </div>
     </header>
 
-    <!-- Page content -->
     <main class="page-content">
 
       <!-- ─── STAT STRIP ─────────────────────────────────────────── -->
@@ -517,10 +289,10 @@ html, body {
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon green"><i class="fas fa-ban"></i></div>
+          <div class="stat-icon teal"><i class="fas fa-bullseye"></i></div>
           <div class="stat-body">
-            <div class="stat-value" id="statBlocked">—</div>
-            <div class="stat-label">Requests Blocked</div>
+            <div class="stat-value" id="statTopEndpoint" title="—">—</div>
+            <div class="stat-label">Top Attacked Endpoint</div>
           </div>
         </div>
 
@@ -569,8 +341,8 @@ html, body {
           </div>
         </div>
 
-        <!-- Top Attacked Endpoints -->
-        <div class="chart-card">
+        <!-- Top Attacked Endpoints (FULL WIDTH) -->
+        <div class="chart-card full-width">
           <div class="chart-card-header">
             <div class="chart-card-icon teal"><i class="fas fa-bullseye"></i></div>
             <div>
@@ -579,24 +351,8 @@ html, body {
             </div>
           </div>
           <div class="chart-card-body">
-            <div class="chart-canvas-wrap">
+            <div class="chart-canvas-wrap tall">
               <canvas id="endpointsChart"></canvas>
-            </div>
-          </div>
-        </div>
-
-        <!-- Blocked Trends -->
-        <div class="chart-card">
-          <div class="chart-card-header">
-            <div class="chart-card-icon green"><i class="fas fa-shield-alt"></i></div>
-            <div>
-              <div class="chart-card-title">Blocked Trends</div>
-              <div class="chart-card-sub">Requests blocked by the system over time</div>
-            </div>
-          </div>
-          <div class="chart-card-body">
-            <div class="chart-canvas-wrap">
-              <canvas id="blockedTrendsChart"></canvas>
             </div>
           </div>
         </div>
@@ -614,7 +370,6 @@ html, body {
 
 
 <script>
-/* ── CLOCK ────────────────────────────────────────────────────────── */
 function updateClock() {
   document.getElementById('liveClock').textContent =
     new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
@@ -622,7 +377,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ── ACTIVE NAV ───────────────────────────────────────────────────── */
 function highlightActiveNav() {
   const path = window.location.pathname;
   document.querySelectorAll('.nav-link').forEach(link => {
@@ -630,15 +384,12 @@ function highlightActiveNav() {
   });
 }
 
-/* ── CHART DEFAULTS ───────────────────────────────────────────────── */
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color       = '#8e8e93';
 
-/* ── CHART INSTANCES ──────────────────────────────────────────────── */
-let attackTypesChartInstance  = null;
-let topIpsChartInstance       = null;
-let endpointsChartInstance    = null;
-let blockedTrendsChartInstance = null;
+let attackTypesChartInstance = null;
+let topIpsChartInstance      = null;
+let endpointsChartInstance   = null;
 
 async function fetchJson(url) {
   const res  = await fetch(url);
@@ -653,37 +404,37 @@ async function loadAttackTypesChart() {
   const ctx  = document.getElementById('attackTypesChart').getContext('2d');
   if (attackTypesChartInstance) attackTypesChartInstance.destroy();
 
-  // tally top attack type for stat strip
   if (data.labels && data.values) {
     const maxIdx = data.values.indexOf(Math.max(...data.values));
-    const el = document.getElementById('statTopAttack');
-    if (el) el.textContent = data.labels[maxIdx] ?? '—';
+    const topEl = document.getElementById('statTopAttack');
+    if (topEl) topEl.textContent = data.labels[maxIdx] ?? '—';
 
     const totalEl = document.getElementById('statTotalAttacks');
     if (totalEl) totalEl.textContent = data.values.reduce((a, b) => a + b, 0).toLocaleString();
   }
 
-  const palette = ['#ff3b30','#ff9f0a','#32ade6','#af52de','#34c759','#007aff'];
+  const palette = ['#ff3b30','#ff9f0a','#32ade6','#af52de','#34c759','#007aff','#ff2d55'];
 
   attackTypesChartInstance = new Chart(ctx, {
-    type: 'bar',
+    type: 'doughnut',
     data: {
       labels: data.labels || [],
       datasets: [{
-        label: 'Detected Attacks',
         data: data.values || [],
         backgroundColor: palette,
-        borderRadius: 8,
-        borderSkipped: false
+        borderWidth: 0,
+        hoverOffset: 8
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11 } } }
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { font: { size: 12 }, padding: 12, boxWidth: 12, boxHeight: 12 }
+        }
       }
     }
   });
@@ -730,6 +481,17 @@ async function loadEndpointsChart() {
   const ctx  = document.getElementById('endpointsChart').getContext('2d');
   if (endpointsChartInstance) endpointsChartInstance.destroy();
 
+  // Update the "Top Attacked Endpoint" stat card
+  if (data.labels && data.labels.length > 0) {
+    const maxIdx = data.values.indexOf(Math.max(...data.values));
+    const el = document.getElementById('statTopEndpoint');
+    if (el) {
+      const ep = data.labels[maxIdx] ?? '—';
+      el.textContent = ep;
+      el.title = ep;   // full path on hover, in case it's truncated
+    }
+  }
+
   endpointsChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -748,63 +510,17 @@ async function loadEndpointsChart() {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { font: { size: 11, family: "'DM Mono', monospace" } } }
+        x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 12 } } },
+        y: { grid: { display: false }, ticks: { font: { size: 12, family: "'DM Mono', monospace" } } }
       }
     }
   });
 }
 
-/* ── BLOCKED TRENDS ───────────────────────────────────────────────── */
-async function loadBlockedTrendsChart() {
-  const data = await fetchJson('/api/attack-analytics/blocked-trends');
-  const ctx  = document.getElementById('blockedTrendsChart').getContext('2d');
-  if (blockedTrendsChartInstance) blockedTrendsChartInstance.destroy();
-
-  if (data.values) {
-    const el = document.getElementById('statBlocked');
-    if (el) el.textContent = data.values.reduce((a, b) => a + b, 0).toLocaleString();
-  }
-
-  const grad = ctx.createLinearGradient(0, 0, 0, 220);
-  grad.addColorStop(0, 'rgba(52,199,89,0.20)');
-  grad.addColorStop(1, 'rgba(52,199,89,0)');
-
-  blockedTrendsChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.labels || [],
-      datasets: [{
-        label: 'Blocked Requests',
-        data: data.values || [],
-        borderColor: '#34c759',
-        backgroundColor: grad,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointBackgroundColor: '#34c759',
-        borderWidth: 2.5
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11 } } },
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false }, ticks: { font: { size: 11 } } }
-      }
-    }
-  });
-}
-
-/* ── INIT ─────────────────────────────────────────────────────────── */
 async function loadAll() {
-  try { await loadAttackTypesChart();   } catch (e) { console.error(e); }
-  try { await loadTopIpsChart();        } catch (e) { console.error(e); }
-  try { await loadEndpointsChart();     } catch (e) { console.error(e); }
-  try { await loadBlockedTrendsChart(); } catch (e) { console.error(e); }
+  try { await loadAttackTypesChart(); } catch (e) { console.error(e); }
+  try { await loadTopIpsChart();      } catch (e) { console.error(e); }
+  try { await loadEndpointsChart();   } catch (e) { console.error(e); }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

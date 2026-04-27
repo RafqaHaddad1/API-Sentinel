@@ -268,7 +268,7 @@ html, body {
 /* ─── METRIC CARDS ───────────────────────────────────────────────────────────── */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   margin-bottom: 24px;
 }
@@ -699,7 +699,24 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 
     <!-- Page Content -->
     <main class="page-content">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:18px;">
+        <label style="font-size:13px;font-weight:600;color:var(--text-2);">
+          Select Day:
+        </label>
 
+        <input
+          type="date"
+          id="dashboardDateFilter"
+          style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:var(--font);"
+        >
+
+        <button
+          onclick="loadDashboard()"
+          style="padding:8px 14px;border:none;border-radius:8px;background:var(--blue);color:white;font-weight:600;cursor:pointer;"
+        >
+          Apply
+        </button>
+      </div>
       <!-- ── METRIC CARDS ──────────────────────────────────────────── -->
       <div class="metrics-grid">
 
@@ -727,15 +744,15 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
           <div class="metric-label">Malicious Requests</div>
         </div>
 
-        <div class="metric-card gray">
+        <!-- <div class="metric-card gray">
           <div class="metric-icon"><i class="fa-solid fa-ban"></i></div>
           <div class="metric-value" id="blockedRequests">—</div>
           <div class="metric-label">Blocked Requests</div>
-        </div>
+        </div> -->
 
         <div class="metric-card purple">
           <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
-          <div class="metric-value" id="detectionRate">—<sup>%</sup></div>
+          <div class="metric-value" id="detectionRate">—</div>
           <div class="metric-label">Detection Rate</div>
         </div>
 
@@ -855,6 +872,15 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 
 
 <script>
+  function getSelectedDashboardDate() {
+  return document.getElementById("dashboardDateFilter")?.value || "";
+}
+
+function dashboardUrl(endpoint) {
+  const date = getSelectedDashboardDate();
+  return date ? `${endpoint}?date=${date}` : endpoint;
+}
+
 /* ── LIVE CLOCK ───────────────────────────────────────────────────── */
 function updateClock() {
   const now = new Date();
@@ -906,7 +932,7 @@ function initializeDataTable() {
 /* ── API LOADERS ──────────────────────────────────────────────────── */
 async function loadSummary() {
   try {
-    const res  = await fetch('/api/dashboard/summary');
+    const res = await fetch(dashboardUrl('/api/dashboard/summary'));
     const data = await res.json();
     if (!res.ok) { console.error('Summary API error:', data); return; }
 
@@ -914,14 +940,13 @@ async function loadSummary() {
     document.getElementById('normalPercentage').innerHTML    = (data.normal_percentage ?? 0) + '<sup>%</sup>';
     document.getElementById('suspiciousRequests').innerText  = data.suspicious_requests ?? 0;
     document.getElementById('maliciousRequests').innerText   = data.malicious_requests ?? 0;
-    document.getElementById('blockedRequests').innerText     = data.blocked_requests ?? 0;
     document.getElementById('detectionRate').innerHTML       = (data.detection_rate ?? 0) + '<sup>%</sup>';
   } catch (e) { console.error('Failed to load summary:', e); }
 }
 
 async function loadClassDistribution() {
   try {
-    const res  = await fetch('/api/dashboard/class-distribution');
+    const res  = await fetch(dashboardUrl('/api/dashboard/class-distribution'));
     const data = await res.json();
     if (!res.ok) { console.error('Class distribution API error:', data); return; }
 
@@ -961,45 +986,76 @@ async function loadClassDistribution() {
 
 async function loadRecentRequests() {
   try {
-    const res  = await fetch('/api/dashboard/recent-requests');
+    const res  = await fetch(dashboardUrl('/api/dashboard/recent-requests'));
     const data = await res.json();
-    if (!res.ok || !data.success) { console.error('Recent requests API error:', data); return; }
 
     const tbody = document.getElementById('recentRequestsBody');
+
+    if (tableInstance) {
+      tableInstance.clear().destroy();
+      tableInstance = null;
+    }
+
     tbody.innerHTML = '';
 
-    (data.data || []).forEach(item => {
+    if (!data.data || data.data.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center;color:#999;padding:20px;">
+            No data for selected date
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    data.data.forEach(item => {
+      let status = (item.status || "unknown").toLowerCase();
+
       let badgeCls = 'badge-blocked';
-      if (item.status === 'normal')     badgeCls = 'badge-normal';
-      if (item.status === 'suspicious') badgeCls = 'badge-suspicious';
-      if (item.status === 'malicious')  badgeCls = 'badge-malicious';
+      if (status === 'normal') badgeCls = 'badge-normal';
+      if (status === 'suspicious') badgeCls = 'badge-suspicious';
+      if (status === 'malicious') badgeCls = 'badge-malicious';
 
       const method = (item.method || 'GET').toUpperCase();
       const methodCls = {
-        'GET':'method-get','POST':'method-post','PUT':'method-put',
-        'DELETE':'method-delete','PATCH':'method-patch'
+        GET: 'method-get',
+        POST: 'method-post',
+        PUT: 'method-put',
+        DELETE: 'method-delete',
+        PATCH: 'method-patch'
       }[method] || 'method-get';
-      const status = item.status || "";
 
-      const formattedStatus = status
-        ? status.charAt(0).toUpperCase() + status.slice(1)
-        : status;
+      const formattedStatus =
+        status.charAt(0).toUpperCase() + status.slice(1);
+
       tbody.innerHTML += `
         <tr>
           <td><span class="ip-cell">${item.ip_address ?? ''}</span></td>
           <td><span class="endpoint-cell">${item.endpoint ?? ''}</span></td>
           <td><span class="method-badge ${methodCls}">${method}</span></td>
-          <td><span class="status-badge ${badgeCls}"><span class="badge-dot"></span>${formattedStatus?? 'Unknown'}</span></td>
+          <td><span class="status-badge ${badgeCls}"><span class="badge-dot"></span>${formattedStatus}</span></td>
           <td><span class="time-cell">${item.response_time_ms ?? 0} ms</span></td>
         </tr>`;
     });
 
     initializeDataTable();
-  } catch (e) { console.error('Failed to load recent requests:', e); }
+
+  } catch (e) {
+    console.error('Failed to load recent requests:', e);
+  }
 }
+function setTodayAsDefaultDate() {
+  const input = document.getElementById("dashboardDateFilter");
+  if (!input) return;
+
+  const today = new Date().toISOString().split("T")[0];
+  input.value = today;
+}
+
 async function loadTrafficTrend() {
   try {
-    const res  = await fetch('/api/dashboard/traffic-trend');
+    const res  = await fetch(dashboardUrl('/api/dashboard/traffic-trend'));
     const data = await res.json();
     if (!res.ok) { console.error('Traffic trend API error:', data); return; }
 
@@ -1090,6 +1146,7 @@ async function loadDashboard() {
 
 document.addEventListener('DOMContentLoaded', () => {
   highlightActiveNav();
+  setTodayAsDefaultDate();
   loadDashboard();
 });
 </script>

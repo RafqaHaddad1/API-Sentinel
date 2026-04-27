@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>API Sentinel | Dashboard</title>
+   <title>API Sentinel | Model Performance</title>
   <link rel="icon" href="static/assets/API_Sentinel_Favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,6 @@
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <style>
-/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -38,65 +37,47 @@
   --red-soft:     #ffeceb;
   --purple:       #af52de;
   --purple-soft:  #f5edff;
-  --teal:         #32ade6;
-  --teal-soft:    #e3f5fd;
   --indigo:       #5856d6;
   --indigo-soft:  #eeeeff;
 
-  --radius:       16px;
-  --radius-sm:    10px;
-  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --radius:    16px;
+  --radius-sm: 10px;
+  --shadow:    0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card: 0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
 
   --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'DM Mono', ui-monospace, monospace;
 }
 
-html, body {
-  height: 100%;
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-}
+html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 
-/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
 .layout { display: flex; min-height: 100vh; }
 
-/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+/* ─── SIDEBAR ────────────────────────────────────────────────────── */
 .sidebar {
-  width: var(--sidebar-w);
-  background: var(--surface);
+  width: var(--sidebar-w); background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
   position: fixed; top: 0; left: 0; bottom: 0;
   z-index: 100; padding: 0 0 24px 0;
 }
-
 .sidebar-brand {
   display: flex; align-items: center; gap: 10px;
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid var(--border);
-  text-decoration: none;
+  padding: 24px 20px 20px; border-bottom: 1px solid var(--border); text-decoration: none;
 }
-
 .brand-icon {
-  width: 36px; height: 36px; background: var(--blue);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; background: var(--blue); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
   color: white; font-size: 16px; flex-shrink: 0;
   box-shadow: 0 4px 12px rgba(0,122,255,0.35);
 }
-
 .brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
 .brand-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
-
 .sidebar-section { padding: 20px 12px 4px; }
 .sidebar-section-label {
   font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--muted);
-  padding: 0 8px; margin-bottom: 4px;
+  text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 4px;
 }
-
 .nav-item { list-style: none; }
 .nav-link {
   display: flex; align-items: center; gap: 10px;
@@ -108,15 +89,14 @@ html, body {
 .nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
 .nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
 .nav-link.active .nav-icon { opacity: 1; }
-
 .sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
 .sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
 .sidebar-footer-text a { color: var(--blue); text-decoration: none; }
 
-/* ─── MAIN ───────────────────────────────────────────────────────────────── */
+/* ─── MAIN ───────────────────────────────────────────────────────── */
 .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+/* ─── TOPBAR ─────────────────────────────────────────────────────── */
 .topbar {
   background: rgba(255,255,255,0.85);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -125,74 +105,23 @@ html, body {
   display: flex; align-items: center; justify-content: space-between;
   position: sticky; top: 0; z-index: 90;
 }
-
 .topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
 .topbar-left p  { font-size: 12px; color: var(--muted); }
 .topbar-right   { display: flex; align-items: center; gap: 12px; }
 .topbar-time    { font-size: 12px; color: var(--muted); font-family: var(--mono); }
 
-/* ─── PAGE CONTENT ───────────────────────────────────────────────────────── */
+/* ─── PAGE ───────────────────────────────────────────────────────── */
 .page-content { padding: 28px 32px; flex: 1; }
 
-/* ─── METRICS ROW ────────────────────────────────────────────────────────── */
-.metrics-grid {
+.top-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.metric-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 18px 16px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  transition: transform 0.18s, box-shadow 0.18s;
-  position: relative; overflow: hidden;
-  animation: fadeUp 0.4s ease both;
-}
-
-.metric-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-.metric-card.blue::before   { background: var(--blue); }
-.metric-card.green::before  { background: var(--green); }
-.metric-card.amber::before  { background: var(--amber); }
-.metric-card.red::before    { background: var(--red); }
-
-.metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
-
-.metric-icon {
-  width: 32px; height: 32px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; margin-bottom: 12px;
-}
-
-.metric-card.blue  .metric-icon { background: var(--blue-soft);   color: var(--blue); }
-.metric-card.green .metric-icon { background: var(--green-soft);  color: #1d8a3a; }
-.metric-card.amber .metric-icon { background: var(--amber-soft);  color: #c7760a; }
-.metric-card.red   .metric-icon { background: var(--red-soft);    color: #c0291f; }
-
-.metric-card:nth-child(1) { animation-delay: 0.05s; }
-.metric-card:nth-child(2) { animation-delay: 0.10s; }
-.metric-card:nth-child(3) { animation-delay: 0.15s; }
-.metric-card:nth-child(4) { animation-delay: 0.20s; }
-
-.metric-value { font-size: 26px; font-weight: 700; letter-spacing: -0.04em; color: var(--text); line-height: 1; margin-bottom: 4px; }
-.metric-label { font-size: 11.5px; color: var(--muted); font-weight: 500; }
-
-/* ─── TWO-COL GRID ───────────────────────────────────────────────────────── */
-.content-grid {
-  display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 420px 1fr;
   gap: 16px;
   margin-bottom: 20px;
+  align-items: start;
 }
 
-/* ─── SECTION CARDS ──────────────────────────────────────────────────────── */
+/* ─── CARDS ──────────────────────────────────────────────────────── */
 .section-card {
   background: var(--surface);
   border-radius: var(--radius);
@@ -201,207 +130,136 @@ html, body {
   overflow: hidden;
   animation: fadeUp 0.4s ease both;
 }
-
-.section-card:nth-child(1) { animation-delay: 0.25s; }
-.section-card:nth-child(2) { animation-delay: 0.30s; }
-
 .section-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 20px; border-bottom: 1px solid var(--border);
 }
-
 .section-title {
   font-size: 13.5px; font-weight: 600; color: var(--text);
   display: flex; align-items: center; gap: 8px;
 }
-
 .title-icon {
   width: 26px; height: 26px; border-radius: 7px;
   display: flex; align-items: center; justify-content: center; font-size: 12px;
 }
-
 .section-body { padding: 20px; }
 
-/* ─── CONFIGURE FORM ─────────────────────────────────────────────────────── */
-.form-group { margin-bottom: 16px; }
-.form-group:last-of-type { margin-bottom: 0; }
-
-.form-label {
-  display: block; font-size: 10.5px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--muted); margin-bottom: 6px;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 9px 12px;
-  font-family: var(--font); font-size: 13px;
-  color: var(--text); background: var(--surface-2);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-  appearance: none; -webkit-appearance: none;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px var(--blue-soft);
-  background: var(--surface);
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder { color: var(--muted); }
-
-.form-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
-
-/* ─── TOGGLE SWITCH ──────────────────────────────────────────────────────── */
-.toggle-row {
+/* ─── RECIPIENT DISPLAY ──────────────────────────────────────────── */
+.recipient-display {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 0; border-bottom: 1px solid var(--border);
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  margin-bottom: 14px; gap: 10px;
 }
-.toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
-.toggle-row:first-child { padding-top: 0; }
-
-.toggle-info { flex: 1; }
-.toggle-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.toggle-desc  { font-size: 11.5px; color: var(--muted); }
-
-.toggle {
-  position: relative; width: 42px; height: 24px; flex-shrink: 0; margin-left: 16px;
+.recipient-email-text {
+  font-family: var(--mono); font-size: 13px; color: var(--text); font-weight: 500;
+  flex: 1; word-break: break-all;
 }
+.recipient-email-text.placeholder { color: var(--muted); font-style: italic; font-family: var(--font); }
 
-.toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-
-.toggle-track {
-  position: absolute; inset: 0;
-  background: var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.2s;
-  border: 1.5px solid rgba(0,0,0,0.08);
+.btn-edit {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-family: var(--font);
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  background: var(--blue-soft); cursor: pointer;
+  transition: background 0.15s; flex-shrink: 0; white-space: nowrap;
 }
+.btn-edit:hover { background: #d0e5ff; }
 
-.toggle input:checked + .toggle-track { background: var(--green); border-color: transparent; }
+/* ─── EDIT MODE ──────────────────────────────────────────────────── */
+.edit-row { display: none; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.edit-row.visible { display: flex; }
 
-.toggle-track::after {
-  content: '';
-  position: absolute; top: 2px; left: 2px;
-  width: 16px; height: 16px;
-  background: white;
-  border-radius: 50%;
-  transition: transform 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+.form-input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 12px; font-family: var(--mono); font-size: 13px;
+  color: var(--text); background: var(--surface-2); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+.form-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); background: var(--surface); }
+.form-input::placeholder { color: var(--muted); font-family: var(--font); }
 
-.toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+.edit-actions { display: flex; gap: 8px; }
 
-/* ─── SEVERITY SELECT ────────────────────────────────────────────────────── */
-.severity-group {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
-  margin-top: 6px;
-}
-
-.severity-option { display: none; }
-
-.severity-label {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 10px 8px; border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border);
-  cursor: pointer; font-size: 11.5px; font-weight: 600;
-  color: var(--muted); background: var(--surface-2);
-  transition: all 0.15s; text-align: center;
-}
-
-.severity-label i { font-size: 16px; }
-.severity-label:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
-
-.severity-option:checked + .severity-label.sev-all      { border-color: var(--blue);   color: var(--blue);   background: var(--blue-soft); }
-.severity-option:checked + .severity-label.sev-suspicious { border-color: var(--amber);  color: #c7760a;       background: var(--amber-soft); }
-.severity-option:checked + .severity-label.sev-malicious  { border-color: var(--red);    color: #c0291f;       background: var(--red-soft); }
-
-/* ─── SUBMIT BUTTON ──────────────────────────────────────────────────────── */
 .btn-save {
-  width: 100%; height: 40px; margin-top: 18px;
-  background: var(--blue); color: white;
-  border: none; border-radius: var(--radius-sm);
-  font-family: var(--font); font-size: 13.5px; font-weight: 600;
-  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
-  box-shadow: 0 2px 12px rgba(0,122,255,0.28);
+  flex: 1; height: 36px; background: var(--blue); color: white;
+  border: none; border-radius: 8px; font-family: var(--font);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  transition: background 0.15s, transform 0.12s;
+  box-shadow: 0 2px 10px rgba(0,122,255,0.25);
 }
-.btn-save:hover  { background: #0066dd; box-shadow: 0 4px 16px rgba(0,122,255,0.38); transform: translateY(-1px); }
+.btn-save:hover { background: #0066dd; transform: translateY(-1px); }
 .btn-save:active { transform: translateY(0); }
-.btn-save.saving { opacity: 0.7; pointer-events: none; }
 
-/* ─── FORM FEEDBACK ──────────────────────────────────────────────────────── */
+.btn-cancel {
+  height: 36px; padding: 0 16px;
+  background: var(--surface-2); color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-cancel:hover { background: var(--bg); }
+
 .form-msg {
-  display: none; margin-top: 12px;
-  border-radius: var(--radius-sm); padding: 10px 14px;
-  font-size: 13px; font-weight: 500;
-  align-items: center; gap: 8px;
+  display: none; border-radius: var(--radius-sm); padding: 9px 12px;
+  font-size: 12.5px; font-weight: 500; align-items: center; gap: 7px;
 }
 .form-msg.visible { display: flex; }
 .form-msg.success { background: var(--green-soft); color: #1d8a3a; }
 .form-msg.error   { background: var(--red-soft);   color: #c0291f; }
-.form-msg.info    { background: var(--blue-soft);  color: var(--blue); }
 
-/* ─── TEST ALERT BUTTON ──────────────────────────────────────────────────── */
-.btn-test {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 16px; border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: var(--font); font-size: 12.5px; font-weight: 600;
-  color: var(--text-2); background: var(--surface-2);
-  cursor: pointer; transition: all 0.15s;
+/* ─── STATS ──────────────────────────────────────────────────────── */
+.stat-line {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
 }
-.btn-test:hover { background: var(--blue-soft); border-color: var(--blue); color: var(--blue); }
+.stat-line:last-child { border-bottom: none; padding-bottom: 0; }
+.stat-line:first-child { padding-top: 0; }
+.stat-left { display: flex; align-items: center; gap: 10px; }
+.stat-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;
+}
+.stat-name  { font-size: 13px; font-weight: 500; color: var(--text-2); }
+.stat-value { font-size: 17px; font-weight: 700; letter-spacing: -0.03em; color: var(--text); }
 
-/* ─── ALERT HISTORY TABLE ────────────────────────────────────────────────── */
+/* ─── TABLE ──────────────────────────────────────────────────────── */
 .alert-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
 .alert-table thead th {
   font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em;
   font-weight: 600; color: var(--muted);
   padding: 0 12px 10px; text-align: left; white-space: nowrap;
 }
-
 .alert-table tbody tr { border-top: 1px solid var(--border); transition: background 0.12s; }
 .alert-table tbody tr:hover { background: var(--surface-2); }
 .alert-table td { padding: 11px 12px; vertical-align: middle; color: var(--text-2); }
-
 .ts-cell   { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
-.mono-cell { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.mono-cell { font-family: var(--mono); font-size: 12px; }
 
-/* ─── SEVERITY BADGES ────────────────────────────────────────────────────── */
+/* ─── BADGES ─────────────────────────────────────────────────────── */
 .severity-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
 }
 .badge-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.sev-malicious  { background: var(--red-soft);   color: #c0291f; }
+.sev-suspicious { background: var(--amber-soft);  color: #c7760a; }
+.sev-info       { background: var(--blue-soft);   color: var(--blue); }
+.sev-malicious  .badge-dot { background: var(--red); }
+.sev-suspicious .badge-dot { background: var(--amber); }
+.sev-info       .badge-dot { background: var(--blue); }
 
-.sev-badge-malicious  { background: var(--red-soft);    color: #c0291f; }
-.sev-badge-suspicious { background: var(--amber-soft);  color: #c7760a; }
-.sev-badge-info       { background: var(--blue-soft);   color: var(--blue); }
-
-.sev-badge-malicious  .badge-dot { background: var(--red); }
-.sev-badge-suspicious .badge-dot { background: var(--amber); }
-.sev-badge-info       .badge-dot { background: var(--blue); }
-
-/* ─── DELIVERY STATUS ────────────────────────────────────────────────────── */
 .delivery-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600;
 }
-.delivery-sent   { background: var(--green-soft); color: #1d8a3a; }
-.delivery-failed { background: var(--red-soft);   color: #c0291f; }
-.delivery-queued { background: #f2f2f7;            color: var(--muted); }
+.del-sent   { background: var(--green-soft); color: #1d8a3a; }
+.del-failed { background: var(--red-soft);   color: #c0291f; }
+.del-queued { background: #f2f2f7;            color: var(--muted); }
 
-/* ─── DATATABLES OVERRIDE ────────────────────────────────────────────────── */
+/* ─── DATATABLES ─────────────────────────────────────────────────── */
 div.dataTables_wrapper { font-family: var(--font); font-size: 13px; color: var(--text-2); }
 div.dataTables_wrapper div.dataTables_length label,
 div.dataTables_wrapper div.dataTables_filter label { font-size: 12px; color: var(--muted); }
@@ -411,9 +269,7 @@ div.dataTables_wrapper div.dataTables_filter input {
   padding: 4px 8px; font-family: var(--font); font-size: 12px;
   outline: none; background: var(--surface); color: var(--text);
 }
-div.dataTables_wrapper div.dataTables_filter input:focus {
-  border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft);
-}
+div.dataTables_wrapper div.dataTables_filter input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
 div.dataTables_wrapper div.dataTables_info,
 div.dataTables_wrapper div.dataTables_paginate { font-size: 12px; color: var(--muted); padding-top: 10px; }
 div.dataTables_wrapper div.dataTables_paginate .paginate_button {
@@ -430,10 +286,7 @@ table.dataTable thead th {
 table.dataTable tbody td { border-top: 1px solid var(--border) !important; }
 table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 
-/* ─── FULL WIDTH ─────────────────────────────────────────────────────────── */
-.full-width { grid-column: 1 / -1; }
-
-/* ─── EMPTY STATE ────────────────────────────────────────────────────────── */
+/* ─── EMPTY / FOOTER ─────────────────────────────────────────────── */
 .empty-state {
   display: flex; align-items: center; justify-content: center;
   flex-direction: column; gap: 8px; padding: 40px 20px; color: var(--muted);
@@ -441,27 +294,92 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 .empty-state i { font-size: 24px; opacity: 0.35; }
 .empty-state p { font-size: 13px; }
 
-/* ─── DIVIDER ────────────────────────────────────────────────────────────── */
-.form-divider {
-  border: none; border-top: 1px solid var(--border); margin: 18px 0;
-}
-
-/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
 .main-footer {
-  padding: 16px 32px;
-  border-top: 1px solid var(--border);
+  padding: 16px 32px; border-top: 1px solid var(--border);
   display: flex; justify-content: space-between; align-items: center;
   font-size: 12px; color: var(--muted); background: var(--surface);
 }
 .main-footer a { color: var(--blue); text-decoration: none; }
-.main-footer a:hover { text-decoration: underline; }
 
-/* ─── ANIMATIONS ─────────────────────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+.sidebar-logo-img {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.email-preview-panel {
+  display: none;
+  padding: 0 12px 16px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  animation: fadeUp 0.2s ease both;
+}
+.email-preview-panel.open { display: block; }
+
+.alert-table tbody tr.expandable-row { cursor: pointer; }
+.alert-table tbody tr.expandable-row:hover { background: var(--surface-2); }
+
+.chevron-icon {
+  font-size: 11px; color: var(--muted);
+  transition: transform 0.2s; display: inline-block;
+}
+/* ─── RECIPIENT LIST ─────────────────────────────────────────────── */
+.recipient-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;        /* ~5-6 rows visible */
+  overflow-y: auto;
+  padding-right: 4px;       /* space so scrollbar doesn't overlap content */
 }
 
+/* Pretty thin scrollbar to match the rest of the UI */
+.recipient-list::-webkit-scrollbar { width: 6px; }
+.recipient-list::-webkit-scrollbar-track { background: transparent; }
+.recipient-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+.recipient-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.15);
+}
+.recipient-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 14px; gap: 10px;
+}
+.recipient-row.inactive { opacity: 0.55; }
+
+.recipient-row .email {
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  font-weight: 500; flex: 1; word-break: break-all;
+}
+
+.recipient-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.btn-icon {
+  width: 30px; height: 30px; border: 1.5px solid var(--border);
+  border-radius: 8px; background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-size: 12px; color: var(--text-2);
+}
+.btn-icon:hover { background: var(--bg); }
+
+.btn-icon.toggle-on  { color: var(--green);  border-color: rgba(52,199,89,0.30); background: var(--green-soft); }
+.btn-icon.toggle-off { color: var(--muted); }
+.btn-icon.delete     { color: var(--red); }
+.btn-icon.delete:hover { background: var(--red-soft); border-color: rgba(255,59,48,0.30); }
+
+.empty-recipients {
+  padding: 24px; text-align: center; color: var(--muted);
+  font-size: 13px; background: var(--surface-2);
+  border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+}
+
+.chevron-icon.open { transform: rotate(180deg); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
 .fa-spin { animation: spin 0.8s linear infinite; }
 </style>
@@ -470,41 +388,65 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 
 <div class="layout">
 
-  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
-  <aside class="sidebar">
-    <a href="/" class="sidebar-brand">
-      <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
-      <div>
-        <div class="brand-name">SAM-ADS</div>
-        <div class="brand-sub">API Security Monitor</div>
-      </div>
-    </a>
+  <!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+   <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
+    </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Monitor</div>
       <ul style="list-style:none;">
-        <li class="nav-item"><a href="/" class="nav-link"><i class="nav-icon fa-solid fa-gauge-high"></i>Dashboard</a></li>
-        <li class="nav-item"><a href="/live-requests" class="nav-link"><i class="nav-icon fa-solid fa-wave-square"></i>Live Requests</a></li>
-        <li class="nav-item"><a href="/attack-analytics" class="nav-link"><i class="nav-icon fa-solid fa-shield-virus"></i>Attack Analytics</a></li>
+        <li class="nav-item">
+          <a href="/" class="nav-link">
+            <i class="nav-icon fa-solid fa-gauge-high"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/live-requests" class="nav-link">
+            <i class="nav-icon fa-solid fa-wave-square"></i>
+            Live Requests
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/attack-analytics" class="nav-link">
+            <i class="nav-icon fa-solid fa-shield-virus"></i>
+            Attack Analytics
+          </a>
+        </li>
       </ul>
     </div>
 
     <div class="sidebar-section">
       <div class="sidebar-section-label">Analyze</div>
       <ul style="list-style:none;">
-        <li class="nav-item"><a href="/model-performance" class="nav-link"><i class="nav-icon fa-solid fa-chart-line"></i>Model Performance</a></li>
-        <li class="nav-item"><a href="/request-investigation" class="nav-link"><i class="nav-icon fa-solid fa-magnifying-glass"></i>Investigation</a></li>
-        <li class="nav-item"><a href="/url-scanner" class="nav-link"><i class="nav-icon fa-solid fa-link"></i>URL Scanner</a></li>
+        <li class="nav-item">
+          <a href="/model-performance" class="nav-link">
+            <i class="nav-icon fa-solid fa-chart-line"></i>
+            Model Performance
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/request-investigation" class="nav-link">
+            <i class="nav-icon fa-solid fa-magnifying-glass"></i>
+            Investigation
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/url-scanner" class="nav-link">
+            <i class="nav-icon fa-solid fa-link"></i>
+            URL Scanner
+          </a>
+        </li>
       </ul>
     </div>
-
     <div class="sidebar-section">
       <div class="sidebar-section-label">Alerts</div>
       <ul style="list-style:none;">
         <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
       </ul>
     </div>
-
     <div class="sidebar-footer">
       <div class="sidebar-footer-text">
         &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
@@ -513,18 +455,18 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
     </div>
   </aside>
 
-  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+  <!-- ── MAIN ─────────────────────────────────────────────────────── -->
   <div class="main">
 
     <header class="topbar">
       <div class="topbar-left">
         <h1>Email Alerts</h1>
-        <p>Configure alert rules and review notification history</p>
+        <p>Recipient configuration and notification history</p>
       </div>
       <div class="topbar-right">
         <div style="display:flex;align-items:center;gap:6px;background:var(--indigo-soft);color:var(--indigo);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;">
           <i class="fa-solid fa-bell" style="font-size:11px;"></i>
-          <span id="alertStatusLabel">Alerts Active</span>
+          Alerts Active
         </div>
         <div class="topbar-time" id="liveClock">—</div>
       </div>
@@ -532,221 +474,103 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
 
     <main class="page-content">
 
-      <!-- ── METRIC CARDS ──────────────────────────────────────────── -->
-      <div class="metrics-grid">
-        <div class="metric-card blue">
-          <div class="metric-icon"><i class="fa-solid fa-envelope-circle-check"></i></div>
-          <div class="metric-value" id="metricTotalSent">—</div>
-          <div class="metric-label">Alerts Sent</div>
-        </div>
-        <div class="metric-card red">
-          <div class="metric-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
-          <div class="metric-value" id="metricMalicious">—</div>
-          <div class="metric-label">Malicious Alerts</div>
-        </div>
-        <div class="metric-card amber">
-          <div class="metric-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-          <div class="metric-value" id="metricSuspicious">—</div>
-          <div class="metric-label">Suspicious Alerts</div>
-        </div>
-        <div class="metric-card green">
-          <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
-          <div class="metric-value" id="metricDeliveryRate">—%</div>
-          <div class="metric-label">Delivery Rate</div>
-        </div>
-      </div>
+      <!-- ── TOP ROW ──────────────────────────────────────────────── -->
+      <div class="top-row">
 
-      <!-- ── CONFIGURE + TOGGLE GRID ────────────────────────────────── -->
-      <div class="content-grid">
-
-        <!-- Left: Configure Alert Rules -->
-        <div class="section-card">
+        <!-- Recipient Box -->
+<!-- Recipient Box (multi) -->
+        <div class="section-card" style="animation-delay:0.05s;">
           <div class="section-header">
             <div class="section-title">
               <div class="title-icon" style="background:var(--blue-soft);color:var(--blue);">
-                <i class="fa-solid fa-sliders"></i>
+                <i class="fa-solid fa-at"></i>
               </div>
-              Configure Alert Rules
+              Alert Recipients
+            </div>
+            <button class="btn-edit" onclick="enterAddMode()" id="addRecipientBtn">
+              <i class="fa-solid fa-plus"></i> Add
+            </button>
+          </div>
+          <div class="section-body">
+
+            <!-- Add / edit form (hidden by default) -->
+            <div class="edit-row" id="editRow">
+              <input type="email" id="emailInput" class="form-input"
+                    placeholder="admin@example.com" autocomplete="off">
+              <div class="edit-actions">
+                <button class="btn-save" id="saveBtn" onclick="saveRecipient()">
+                  <i class="fa-solid fa-floppy-disk" id="saveIcon"></i>
+                  <span id="saveBtnText">Add Recipient</span>
+                </button>
+                <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+              </div>
+            </div>
+
+            <div class="form-msg" id="recipientMsg"></div>
+
+            <!-- Recipient list -->
+            <div id="recipientList" class="recipient-list"></div>
+
+          </div>
+        </div>
+
+        <!-- Alert Summary Stats -->
+        <div class="section-card" style="animation-delay:0.10s;">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
+                <i class="fa-solid fa-chart-simple"></i>
+              </div>
+              Alert Summary
             </div>
           </div>
           <div class="section-body">
 
-            <div class="form-group">
-              <label class="form-label">Recipient Email(s)</label>
-              <input
-                type="email"
-                id="recipientEmail"
-                class="form-input"
-                placeholder="admin@example.com, soc@example.com"
-                multiple
-              >
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Alert Severity</label>
-              <div class="severity-group">
-                <input type="radio" name="severity" id="sev-all"        value="all"        class="severity-option" checked>
-                <label for="sev-all" class="severity-label sev-all">
-                  <i class="fa-solid fa-bolt"></i>All
-                </label>
-
-                <input type="radio" name="severity" id="sev-suspicious" value="suspicious" class="severity-option">
-                <label for="sev-suspicious" class="severity-label sev-suspicious">
-                  <i class="fa-solid fa-triangle-exclamation"></i>Suspicious
-                </label>
-
-                <input type="radio" name="severity" id="sev-malicious"  value="malicious"  class="severity-option">
-                <label for="sev-malicious" class="severity-label sev-malicious">
-                  <i class="fa-solid fa-skull-crossbones"></i>Malicious
-                </label>
+            <div class="stat-line">
+              <div class="stat-left">
+                <div class="stat-icon" style="background:var(--blue-soft);color:var(--blue);"><i class="fa-solid fa-envelope-circle-check"></i></div>
+                <span class="stat-name">Total Sent</span>
               </div>
+              <span class="stat-value" id="statTotal">—</span>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Cooldown (minutes between alerts)</label>
-              <input
-                type="number"
-                id="cooldownMinutes"
-                class="form-input"
-                placeholder="5"
-                min="1" max="1440" value="5"
-              >
+            <div class="stat-line">
+              <div class="stat-left">
+                <div class="stat-icon" style="background:var(--red-soft);color:var(--red);"><i class="fa-solid fa-skull-crossbones"></i></div>
+                <span class="stat-name">Malicious Alerts</span>
+              </div>
+              <span class="stat-value" style="color:var(--red);" id="statMalicious">—</span>
             </div>
 
-            <div class="form-group">
-              <label class="form-label">Custom Alert Message (optional)</label>
-              <textarea
-                id="customMessage"
-                class="form-textarea"
-                placeholder="A security event has been detected on your API..."
-              ></textarea>
+            <div class="stat-line">
+              <div class="stat-left">
+                <div class="stat-icon" style="background:var(--amber-soft);color:var(--amber);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <span class="stat-name">Suspicious Alerts</span>
+              </div>
+              <span class="stat-value" style="color:var(--amber);" id="statSuspicious">—</span>
             </div>
 
-            <hr class="form-divider">
-
-            <button class="btn-save" id="saveConfigBtn" onclick="saveAlertConfig()">
-              <i class="fa-solid fa-floppy-disk" id="saveIcon"></i>
-              <span id="saveBtnText">Save Configuration</span>
-            </button>
-
-            <div class="form-msg" id="configMsg"></div>
+            <div class="stat-line">
+              <div class="stat-left">
+                <div class="stat-icon" style="background:var(--green-soft);color:var(--green);"><i class="fa-solid fa-circle-check"></i></div>
+                <span class="stat-name">Delivery Rate</span>
+              </div>
+              <span class="stat-value" style="color:var(--green);" id="statDelivery">—</span>
+            </div>
 
           </div>
         </div>
 
-        <!-- Right: Alert Toggles + Test -->
-        <div style="display:flex;flex-direction:column;gap:16px;">
-
-          <!-- Notification Toggles -->
-          <div class="section-card">
-            <div class="section-header">
-              <div class="section-title">
-                <div class="title-icon" style="background:var(--purple-soft);color:var(--purple);">
-                  <i class="fa-solid fa-toggle-on"></i>
-                </div>
-                Notification Rules
-              </div>
-            </div>
-            <div class="section-body">
-
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Malicious Request Alert</div>
-                  <div class="toggle-desc">Notify immediately on any malicious classification</div>
-                </div>
-                <label class="toggle">
-                  <input type="checkbox" id="toggleMalicious" checked onchange="updateToggle('malicious', this.checked)">
-                  <div class="toggle-track"></div>
-                </label>
-              </div>
-
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Suspicious Request Alert</div>
-                  <div class="toggle-desc">Notify when a request is flagged as suspicious</div>
-                </div>
-                <label class="toggle">
-                  <input type="checkbox" id="toggleSuspicious" checked onchange="updateToggle('suspicious', this.checked)">
-                  <div class="toggle-track"></div>
-                </label>
-              </div>
-
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">MITM Detection Alert</div>
-                  <div class="toggle-desc">Notify on man-in-the-middle indicators</div>
-                </div>
-                <label class="toggle">
-                  <input type="checkbox" id="toggleMitm" checked onchange="updateToggle('mitm', this.checked)">
-                  <div class="toggle-track"></div>
-                </label>
-              </div>
-
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">High-Traffic Spike Alert</div>
-                  <div class="toggle-desc">Notify on abnormal request volume spikes</div>
-                </div>
-                <label class="toggle">
-                  <input type="checkbox" id="toggleSpike" onchange="updateToggle('spike', this.checked)">
-                  <div class="toggle-track"></div>
-                </label>
-              </div>
-
-              <div class="toggle-row">
-                <div class="toggle-info">
-                  <div class="toggle-label">Daily Summary Digest</div>
-                  <div class="toggle-desc">Receive a daily summary of all security events</div>
-                </div>
-                <label class="toggle">
-                  <input type="checkbox" id="toggleDigest" onchange="updateToggle('digest', this.checked)">
-                  <div class="toggle-track"></div>
-                </label>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Test Alert -->
-          <div class="section-card">
-            <div class="section-header">
-              <div class="section-title">
-                <div class="title-icon" style="background:var(--teal-soft);color:var(--teal);">
-                  <i class="fa-solid fa-paper-plane"></i>
-                </div>
-                Test Alert
-              </div>
-              <button class="btn-test" id="testAlertBtn" onclick="sendTestAlert()">
-                <i class="fa-solid fa-vial" id="testIcon"></i>
-                Send Test Email
-              </button>
-            </div>
-            <div class="section-body">
-              <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;">
-                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Preview Subject</div>
-                  <div style="font-size:13px;font-weight:500;color:var(--text);">⚠️ SAM-ADS Alert: Malicious Request Detected</div>
-                </div>
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;">
-                  <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:6px;">Preview Body</div>
-                  <div style="font-size:12.5px;color:var(--text-2);line-height:1.6;">A <strong>malicious</strong> request was detected from <span style="font-family:var(--mono);color:var(--red);">203.0.113.42</span> targeting <span style="font-family:var(--mono);color:var(--blue);">/api/login</span>. Decision: <strong>Blocked</strong>. Confidence: 97.3%.</div>
-                </div>
-              </div>
-              <div class="form-msg" id="testMsg" style="margin-top:12px;"></div>
-            </div>
-          </div>
-
-        </div>
       </div>
 
-      <!-- ── ALERT HISTORY TABLE ─────────────────────────────────────── -->
-      <div class="section-card full-width" style="animation-delay:0.4s;">
+      <!-- ── HISTORY TABLE ─────────────────────────────────────────── -->
+      <div class="section-card" style="animation-delay:0.15s;">
         <div class="section-header">
           <div class="section-title">
-            <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
+            <div class="title-icon" style="background:var(--purple-soft);color:var(--purple);">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
-            Alert History
+            Sent Alerts
           </div>
           <span style="font-size:11.5px;color:var(--muted);font-weight:500;">All dispatched email notifications</span>
         </div>
@@ -755,17 +579,16 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
             <thead>
               <tr>
                 <th>Timestamp</th>
-                <th>Recipient</th>
+                <th>Sent To</th>
                 <th>Severity</th>
                 <th>Trigger</th>
                 <th>IP Address</th>
                 <th>Endpoint</th>
                 <th>Delivery</th>
+                <th></th>
               </tr>
             </thead>
-            <tbody id="alertHistoryBody">
-              <!-- populated by JS -->
-            </tbody>
+            <tbody id="alertHistoryBody"></tbody>
           </table>
         </div>
       </div>
@@ -777,12 +600,12 @@ table.dataTable.no-footer { border-bottom: 1px solid var(--border) !important; }
       <span>Spring 2026</span>
     </footer>
 
-  </div><!-- /.main -->
-</div><!-- /.layout -->
+  </div>
+</div>
 
 
 <script>
-/* ── LIVE CLOCK ──────────────────────────────────────────────────── */
+/* ── CLOCK ───────────────────────────────────────────────────────── */
 function updateClock() {
   document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
@@ -791,7 +614,7 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ── ACTIVE NAV ──────────────────────────────────────────────────── */
+/* ── NAV ─────────────────────────────────────────────────────────── */
 function highlightActiveNav() {
   const path = window.location.pathname;
   document.querySelectorAll('.nav-link').forEach(link => {
@@ -799,222 +622,415 @@ function highlightActiveNav() {
   });
 }
 
-/* ── FEEDBACK HELPERS ────────────────────────────────────────────── */
+/* ── FEEDBACK ────────────────────────────────────────────────────── */
 function showMsg(elId, type, text) {
   const el = document.getElementById(elId);
-  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
-  el.innerHTML = `<i class="fa-solid ${icons[type] || 'fa-circle-info'}"></i> ${text}`;
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark' };
+  el.innerHTML = `<i class="fa-solid ${icons[type]}"></i> ${text}`;
   el.className = `form-msg ${type} visible`;
 }
+function hideMsg(elId) { document.getElementById(elId).className = 'form-msg'; }
 
-function hideMsg(elId) {
-  document.getElementById(elId).className = 'form-msg';
+/* ── RECIPIENT ───────────────────────────────────────────────────── */
+/* ── RECIPIENT MANAGEMENT ────────────────────────────────────────── */
+let editingId = null;   // null = adding new, otherwise = config_id being edited
+
+function enterAddMode() {
+  editingId = null;
+  document.getElementById('emailInput').value = '';
+  document.getElementById('saveBtnText').textContent = 'Add Recipient';
+  document.getElementById('editRow').classList.add('visible');
+  document.getElementById('addRecipientBtn').style.display = 'none';
+  hideMsg('recipientMsg');
+  document.getElementById('emailInput').focus();
 }
 
-/* ── LOAD METRICS ────────────────────────────────────────────────── */
+function enterEditMode(configId, currentEmail) {
+  editingId = configId;
+  document.getElementById('emailInput').value = currentEmail;
+  document.getElementById('saveBtnText').textContent = 'Save Changes';
+  document.getElementById('editRow').classList.add('visible');
+  document.getElementById('addRecipientBtn').style.display = 'none';
+  hideMsg('recipientMsg');
+  document.getElementById('emailInput').focus();
+}
+
+function cancelEdit() {
+  editingId = null;
+  document.getElementById('editRow').classList.remove('visible');
+  document.getElementById('addRecipientBtn').style.display = 'inline-flex';
+  hideMsg('recipientMsg');
+}
+
+async function saveRecipient() {
+  const email    = document.getElementById('emailInput').value.trim();
+  const saveBtn  = document.getElementById('saveBtn');
+  const saveIcon = document.getElementById('saveIcon');
+  if (!email) { showMsg('recipientMsg', 'error', 'Please enter a valid email address.'); return; }
+
+  saveBtn.disabled = true;
+  saveIcon.className = 'fa-solid fa-spinner fa-spin';
+  hideMsg('recipientMsg');
+
+  try {
+    const isEdit = editingId !== null;
+    const url    = isEdit ? `/api/email-alerts/config/${editingId}` : '/api/email-alerts/config';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    const res    = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient_email: email })
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || 'Failed to save');
+
+    cancelEdit();
+    showMsg('recipientMsg', 'success', isEdit ? 'Recipient updated.' : 'Recipient added.');
+    setTimeout(() => hideMsg('recipientMsg'), 3000);
+    await loadConfig();
+  } catch (e) {
+    showMsg('recipientMsg', 'error', e.message);
+  } finally {
+    saveBtn.disabled = false;
+    saveIcon.className = 'fa-solid fa-floppy-disk';
+  }
+}
+
+async function deleteRecipient(configId, email) {
+  if (!confirm(`Remove "${email}" from alert recipients?`)) return;
+  try {
+    const res    = await fetch(`/api/email-alerts/config/${configId}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || 'Failed to delete');
+    showMsg('recipientMsg', 'success', 'Recipient removed.');
+    setTimeout(() => hideMsg('recipientMsg'), 3000);
+    await loadConfig();
+  } catch (e) {
+    showMsg('recipientMsg', 'error', e.message);
+  }
+}
+
+async function toggleRecipient(configId, currentlyActive) {
+  try {
+    const res = await fetch(`/api/email-alerts/config/${configId}/toggle`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: !currentlyActive })
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || 'Failed to toggle');
+    await loadConfig();
+  } catch (e) {
+    showMsg('recipientMsg', 'error', e.message);
+  }
+}
+
+function renderRecipients(recipients) {
+  const container = document.getElementById('recipientList');
+  if (!recipients || recipients.length === 0) {
+    container.innerHTML = `
+      <div class="empty-recipients">
+        <i class="fa-solid fa-envelope-open" style="font-size:20px;opacity:0.4;display:block;margin-bottom:6px;"></i>
+        No recipients configured. Click <b>Add</b> to get started.
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = recipients.map(r => {
+    const id        = r.config_id;
+    const email     = r.recipient_email || '';
+    const active    = r.is_active === undefined ? 1 : r.is_active;
+    const isActive  = !!active;
+
+    return `
+      <div class="recipient-row ${isActive ? '' : 'inactive'}">
+        <span class="email">${email}</span>
+        <div class="recipient-actions">
+          <button class="btn-icon ${isActive ? 'toggle-on' : 'toggle-off'}"
+                  title="${isActive ? 'Active — click to disable' : 'Disabled — click to enable'}"
+                  onclick="toggleRecipient(${id}, ${isActive})">
+            <i class="fa-solid ${isActive ? 'fa-bell' : 'fa-bell-slash'}"></i>
+          </button>
+          <button class="btn-icon" title="Edit"
+                  onclick="enterEditMode(${id}, '${email.replace(/'/g, "\\'")}')">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <button class="btn-icon delete" title="Delete"
+                  onclick="deleteRecipient(${id}, '${email.replace(/'/g, "\\'")}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ── CONFIG LOADER ───────────────────────────────────────────────── */
+async function loadConfig() {
+  try {
+    const res  = await fetch('/api/email-alerts/config');
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      renderRecipients([]);
+      return;
+    }
+    renderRecipients(data.recipients || []);
+  } catch (e) {
+    console.error('Failed to load config:', e);
+    renderRecipients([]);
+  }
+}
+
+/* ── METRICS ─────────────────────────────────────────────────────── */
 async function loadMetrics() {
   try {
     const res  = await fetch('/api/email-alerts/metrics');
     const data = await res.json();
     if (!res.ok || !data.success) return;
-
-    document.getElementById('metricTotalSent').textContent    = data.total_sent      ?? '—';
-    document.getElementById('metricMalicious').textContent    = data.malicious_alerts ?? '—';
-    document.getElementById('metricSuspicious').textContent   = data.suspicious_alerts ?? '—';
-    document.getElementById('metricDeliveryRate').textContent = (data.delivery_rate ?? '—') + '%';
-  } catch (e) { console.error('Failed to load alert metrics:', e); }
+    document.getElementById('statTotal').textContent      = data.total_sent       ?? '—';
+    document.getElementById('statMalicious').textContent  = data.malicious_alerts  ?? '—';
+    document.getElementById('statSuspicious').textContent = data.suspicious_alerts ?? '—';
+    document.getElementById('statDelivery').textContent   = data.delivery_rate != null ? data.delivery_rate + '%' : '—';
+  } catch (e) { console.error('Failed to load metrics:', e); }
 }
 
-/* ── LOAD CONFIG ─────────────────────────────────────────────────── */
-async function loadAlertConfig() {
-  try {
-    const res  = await fetch('/api/email-alerts/config');
-    const data = await res.json();
-    if (!res.ok || !data.success) return;
+/* ── EMAIL PREVIEW BUILDER ───────────────────────────────────────── */
+const SEVERITY_CONFIG = {
+  malicious:  { label:'MALICIOUS', color:'#A32D2D', bg:'#FCEBEB', border:'#E24B4A', score:95 },
+  suspicious: { label:'SUSPICIOUS',color:'#854F0B', bg:'#FAEEDA', border:'#EF9F27', score:60 },
+  info:       { label:'INFO',      color:'#0C447C', bg:'#E6F1FB', border:'#378ADD', score:10 },
+};
 
-    if (data.recipient_email)   document.getElementById('recipientEmail').value   = data.recipient_email;
-    if (data.cooldown_minutes)  document.getElementById('cooldownMinutes').value  = data.cooldown_minutes;
-    if (data.custom_message)    document.getElementById('customMessage').value    = data.custom_message;
+function buildScoreBar(score, color) {
+  const filled = Math.round(score / 10);
+  let segs = '';
+  for (let i = 0; i < 10; i++) {
+    segs += `<div style="flex:1;height:7px;background:${i < filled ? color : '#D3D1C7'};border-radius:2px;"></div>`;
+  }
+  return `
+    <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <span style="font-size:10px;color:#888780;text-transform:uppercase;letter-spacing:0.5px;">Threat score</span>
+        <span style="font-size:12px;font-weight:700;color:${color};">${score}/100</span>
+      </div>
+      <div style="display:flex;gap:3px;">${segs}</div>
+    </div>`;
+}
 
-    if (data.severity) {
-      const radio = document.querySelector(`input[name="severity"][value="${data.severity}"]`);
-      if (radio) radio.checked = true;
+function buildEmailPreview(row) {
+  const sev = (row.severity || 'info').toLowerCase();
+  const cfg = SEVERITY_CONFIG[sev] || SEVERITY_CONFIG['info'];
+  const scoreBar = buildScoreBar(cfg.score, cfg.color);
+
+  return `
+  <div style="font-family:Arial,sans-serif;background:#F1EFE8;padding:16px;border-radius:8px;">
+    <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:10px;overflow:hidden;border:0.5px solid #D3D1C7;">
+
+      <div style="background:#1a1a2e;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <span style="font-size:15px;font-weight:700;color:#fff;letter-spacing:1px;">SENTINEL</span>
+          <span style="font-size:10px;color:#9F9FBF;margin-left:8px;">API Security Monitor</span>
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;
+                     background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.border};letter-spacing:0.5px;">
+          ${cfg.label}
+        </span>
+      </div>
+
+      <div style="border-left:4px solid ${cfg.border};padding:12px 22px;background:${cfg.bg};border-radius:0;">
+        <p style="margin:0;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:${cfg.color};">Security alert triggered</p>
+        <p style="margin:3px 0 0;font-size:15px;font-weight:700;color:#2C2C2A;">${row.trigger || 'Anomaly Detected'}</p>
+      </div>
+
+      <div style="padding:18px 22px;">
+        ${scoreBar}
+
+        <table width="100%" cellpadding="0" cellspacing="0"
+               style="background:#F1EFE8;border-radius:8px;border:0.5px solid #D3D1C7;overflow:hidden;margin-bottom:16px;">
+          <tr>
+            <td style="padding:10px 12px;vertical-align:top;">
+              <div style="font-size:9px;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Timestamp</div>
+              <div style="font-size:12px;color:#2C2C2A;font-weight:500;">${row.timestamp || '—'}</div>
+            </td>
+            <td style="padding:10px 12px;border-left:0.5px solid #D3D1C7;vertical-align:top;">
+              <div style="font-size:9px;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Severity</div>
+              <div style="font-size:12px;font-weight:700;color:${cfg.color};">${cfg.label}</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;border-top:0.5px solid #D3D1C7;vertical-align:top;">
+              <div style="font-size:9px;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Source IP</div>
+              <div style="font-size:12px;color:#2C2C2A;font-family:monospace;">${row.ip_address || '—'}</div>
+            </td>
+            <td style="padding:10px 12px;border-top:0.5px solid #D3D1C7;border-left:0.5px solid #D3D1C7;vertical-align:top;">
+              <div style="font-size:9px;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Endpoint</div>
+              <div style="font-size:12px;color:#2C2C2A;font-family:monospace;">${row.endpoint || '—'}</div>
+            </td>
+          </tr>
+        </table>
+
+        <div style="display:inline-block;background:#1a1a2e;border-radius:7px;padding:9px 18px;">
+          <span style="color:#fff;font-size:12px;font-weight:600;">View dashboard &rarr;</span>
+        </div>
+      </div>
+
+      <div style="border-top:0.5px solid #D3D1C7;padding:12px 22px;background:#F1EFE8;">
+        <p style="margin:0;font-size:10px;color:#888780;line-height:1.6;">
+          Sent to: <strong>${row.recipient || '—'}</strong> &nbsp;&middot;&nbsp;
+          Delivery: <strong>${row.delivery_status || '—'}</strong>
+        </p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── HISTORY ─────────────────────────────────────────────────────── */
+let tableInstance = null;
+let expandedRows  = new Set();
+
+function getSeverityBadge(s) {
+  const v = (s || '').toLowerCase();
+  if (v === 'malicious')  return '<span class="severity-badge sev-malicious"><span class="badge-dot"></span>Malicious</span>';
+  if (v === 'suspicious') return '<span class="severity-badge sev-suspicious"><span class="badge-dot"></span>Suspicious</span>';
+  return '<span class="severity-badge sev-info"><span class="badge-dot"></span>Info</span>';
+}
+
+function getDeliveryBadge(s) {
+  const v = (s || '').toLowerCase();
+  if (v === 'success')   return '<span class="delivery-badge del-sent"><i class="fa-solid fa-check" style="font-size:9px;"></i> Sent</span>';
+  if (v === 'failed') return '<span class="delivery-badge del-failed"><i class="fa-solid fa-xmark" style="font-size:9px;"></i> Failed</span>';
+  return '<span class="delivery-badge del-queued">Queued</span>';
+}
+
+function togglePreview(idx, row, tr) {
+  const panelId = `email-panel-${idx}`;
+  const chevron = document.getElementById(`chevron-${idx}`);
+  let panel = document.getElementById(panelId);
+
+  if (expandedRows.has(idx)) {
+    // Close
+    if (panel) panel.classList.remove('open');
+    if (chevron) chevron.classList.remove('open');
+    expandedRows.delete(idx);
+  } else {
+    // Build panel if it doesn't exist yet
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = panelId;
+      panel.className = 'email-preview-panel';
+      panel.innerHTML = buildEmailPreview(row);
+      // Insert right after the table's wrapper div
+      const tableWrapper = document.getElementById('alertHistoryTable').closest('.section-card');
+      tableWrapper.appendChild(panel);
     }
+    panel.classList.add('open');
+    if (chevron) chevron.classList.add('open');
+    expandedRows.add(idx);
 
-    if (data.toggles) {
-      Object.entries(data.toggles).forEach(([key, val]) => {
-        const el = document.getElementById(`toggle${key.charAt(0).toUpperCase() + key.slice(1)}`);
-        if (el) el.checked = val;
-      });
-    }
-  } catch (e) { console.error('Failed to load alert config:', e); }
-}
-
-/* ── SAVE CONFIG ─────────────────────────────────────────────────── */
-async function saveAlertConfig() {
-  const btn      = document.getElementById('saveConfigBtn');
-  const icon     = document.getElementById('saveIcon');
-  const btnText  = document.getElementById('saveBtnText');
-
-  btn.classList.add('saving');
-  icon.className    = 'fa-solid fa-spinner fa-spin';
-  btnText.textContent = 'Saving…';
-  hideMsg('configMsg');
-
-  const payload = {
-    recipient_email:  document.getElementById('recipientEmail').value.trim(),
-    severity:         document.querySelector('input[name="severity"]:checked')?.value || 'all',
-    cooldown_minutes: parseInt(document.getElementById('cooldownMinutes').value) || 5,
-    custom_message:   document.getElementById('customMessage').value.trim(),
-    toggles: {
-      malicious:  document.getElementById('toggleMalicious').checked,
-      suspicious: document.getElementById('toggleSuspicious').checked,
-      mitm:       document.getElementById('toggleMitm').checked,
-      spike:      document.getElementById('toggleSpike').checked,
-      digest:     document.getElementById('toggleDigest').checked,
-    }
-  };
-
-  if (!payload.recipient_email) {
-    btn.classList.remove('saving');
-    icon.className    = 'fa-solid fa-floppy-disk';
-    btnText.textContent = 'Save Configuration';
-    showMsg('configMsg', 'error', 'Please enter at least one recipient email.');
-    return;
-  }
-
-  try {
-    const res    = await fetch('/api/email-alerts/config', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const result = await res.json();
-    if (!res.ok || !result.success) throw new Error(result.error || 'Failed to save configuration');
-    showMsg('configMsg', 'success', 'Configuration saved successfully.');
-  } catch (e) {
-    console.error('Save config failed:', e);
-    showMsg('configMsg', 'error', e.message);
-  } finally {
-    btn.classList.remove('saving');
-    icon.className    = 'fa-solid fa-floppy-disk';
-    btnText.textContent = 'Save Configuration';
+    // Scroll panel into view smoothly
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
   }
 }
 
-/* ── TOGGLE HANDLER ──────────────────────────────────────────────── */
-async function updateToggle(type, enabled) {
+async function loadHistory() {
   try {
-    await fetch('/api/email-alerts/toggle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, enabled })
-    });
-  } catch (e) { console.error('Toggle update failed:', e); }
-}
-
-/* ── TEST ALERT ──────────────────────────────────────────────────── */
-async function sendTestAlert() {
-  const btn      = document.getElementById('testAlertBtn');
-  const icon     = document.getElementById('testIcon');
-  const email    = document.getElementById('recipientEmail').value.trim();
-
-  if (!email) {
-    showMsg('testMsg', 'error', 'Save a recipient email first before sending a test.');
-    return;
-  }
-
-  btn.disabled  = true;
-  icon.className = 'fa-solid fa-spinner fa-spin';
-  hideMsg('testMsg');
-
-  try {
-    const res    = await fetch('/api/email-alerts/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient_email: email })
-    });
-    const result = await res.json();
-    if (!res.ok || !result.success) throw new Error(result.error || 'Failed to send test alert');
-    showMsg('testMsg', 'success', `Test email sent to ${email}`);
-    loadAlertHistory(); // refresh history after test
-  } catch (e) {
-    console.error('Test alert failed:', e);
-    showMsg('testMsg', 'error', e.message);
-  } finally {
-    btn.disabled   = false;
-    icon.className = 'fa-solid fa-vial';
-  }
-}
-
-/* ── ALERT HISTORY ───────────────────────────────────────────────── */
-let historyTableInstance = null;
-
-function getSeverityBadge(severity) {
-  const val = (severity || '').toLowerCase();
-  if (val === 'malicious')  return '<span class="severity-badge sev-badge-malicious"><span class="badge-dot"></span>Malicious</span>';
-  if (val === 'suspicious') return '<span class="severity-badge sev-badge-suspicious"><span class="badge-dot"></span>Suspicious</span>';
-  return '<span class="severity-badge sev-badge-info"><span class="badge-dot"></span>Info</span>';
-}
-
-function getDeliveryBadge(status) {
-  const val = (status || '').toLowerCase();
-  if (val === 'sent')   return '<span class="delivery-badge delivery-sent"><i class="fa-solid fa-check" style="font-size:9px;"></i> Sent</span>';
-  if (val === 'failed') return '<span class="delivery-badge delivery-failed"><i class="fa-solid fa-xmark" style="font-size:9px;"></i> Failed</span>';
-  return '<span class="delivery-badge delivery-queued">Queued</span>';
-}
-
-async function loadAlertHistory() {
-  try {
-    const res    = await fetch('/api/email-alerts/history');
+    const res = await fetch('/api/email-alerts/history');
     const result = await res.json();
     if (!res.ok || !result.success) return;
+
+    if (tableInstance) {
+      tableInstance.destroy();
+      tableInstance = null;
+    }
 
     const tbody = document.getElementById('alertHistoryBody');
     tbody.innerHTML = '';
 
     if (!result.data || result.data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-envelope-open"></i><p>No alerts have been sent yet.</p></div></td></tr>`;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="fa-solid fa-envelope-open"></i>
+              <p>No alerts have been sent yet.</p>
+            </div>
+          </td>
+        </tr>`;
       return;
     }
 
-    result.data.forEach(row => {
+    result.data.forEach((row, idx) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><span class="ts-cell">${row.timestamp ?? ''}</span></td>
-        <td><span class="mono-cell">${row.recipient ?? ''}</span></td>
+        <td><span class="mono-cell" style="color:var(--blue);">${row.recipient ?? '—'}</span></td>
         <td>${getSeverityBadge(row.severity)}</td>
         <td style="font-size:12.5px;color:var(--text-2);">${row.trigger ?? ''}</td>
-        <td><span class="mono-cell" style="color:var(--text);">${row.ip_address ?? '—'}</span></td>
+        <td><span class="mono-cell">${row.ip_address ?? '—'}</span></td>
         <td><span class="mono-cell" style="color:var(--blue);">${row.endpoint ?? '—'}</span></td>
         <td>${getDeliveryBadge(row.delivery_status)}</td>
+        <td style="text-align:center;width:36px;">
+          <i id="chevron-${idx}" class="fa-solid fa-chevron-down chevron-icon"></i>
+        </td>
       `;
+
+      tr.dataset.preview = row.email_html || `
+        <div style="padding:20px;color:#8e8e93;font-size:13px;">
+          No saved email HTML for this alert.
+        </div>
+      `;
+
       tbody.appendChild(tr);
     });
 
-    if (historyTableInstance) { historyTableInstance.destroy(); }
-    historyTableInstance = $('#alertHistoryTable').DataTable({
+    tableInstance = $('#alertHistoryTable').DataTable({
       responsive: true,
       autoWidth: false,
       pageLength: 10,
       order: [[0, 'desc']],
+      columnDefs: [
+        { targets: 7, orderable: false, searchable: false }
+      ],
       language: {
         search: '',
         searchPlaceholder: 'Search alerts…',
         lengthMenu: 'Show _MENU_ rows',
-        info: 'Showing _START_–_END_ of _TOTAL_',
+        info: 'Showing _START_–_END_ of _TOTAL_'
       }
     });
 
-  } catch (e) { console.error('Failed to load alert history:', e); }
+    $('#alertHistoryTable tbody').off('click').on('click', 'tr', function () {
+      const rowApi = tableInstance.row(this);
+      const chevron = this.querySelector('.chevron-icon');
+
+      if (rowApi.child.isShown()) {
+        rowApi.child.hide();
+        if (chevron) chevron.classList.remove('open');
+      } else {
+        rowApi.child(`
+          <div style="padding:16px;background:var(--surface-2);">
+            ${this.dataset.preview}
+          </div>
+        `).show();
+        if (chevron) chevron.classList.add('open');
+      }
+    });
+
+  } catch (e) {
+    console.error('Failed to load history:', e);
+  }
 }
 
 /* ── INIT ────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   highlightActiveNav();
+  loadConfig();
   loadMetrics();
-  loadAlertConfig();
-  loadAlertHistory();
+  loadHistory();
+  document.getElementById('emailInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') saveRecipient();
+  });
 });
 </script>
 
