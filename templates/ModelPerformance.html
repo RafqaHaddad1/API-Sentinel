@@ -13,364 +13,492 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ─── RESET & BASE ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #f2f2f7;
-  --surface:      #ffffff;
-  --surface-2:    #f9f9fb;
-  --border:       rgba(0,0,0,0.07);
-  --text:         #1c1c1e;
-  --text-2:       #3a3a3c;
-  --muted:        #8e8e93;
-  --sidebar-w:    240px;
+  --bg:#f2f2f7;
+  --surface:#ffffff;
+  --surface-2:#f9f9fb;
+  --border:rgba(0,0,0,0.07);
+  --text:#1c1c1e;
+  --text-2:#3a3a3c;
+  --muted:#8e8e93;
+  --sidebar-w:240px;
 
-  --blue:         #007aff;
-  --blue-soft:    #e8f1ff;
-  --green:        #34c759;
-  --green-soft:   #e5f8eb;
-  --amber:        #ff9f0a;
-  --amber-soft:   #fff4e0;
-  --red:          #ff3b30;
-  --red-soft:     #ffeceb;
-  --purple:       #af52de;
-  --purple-soft:  #f5edff;
-  --teal:         #32ade6;
-  --teal-soft:    #e3f5fd;
-  --indigo:       #5856d6;
-  --indigo-soft:  #eeeeff;
+  --blue:#007aff;
+  --blue-soft:#e8f1ff;
+  --green:#34c759;
+  --green-soft:#e5f8eb;
+  --amber:#ff9f0a;
+  --amber-soft:#fff4e0;
+  --red:#ff3b30;
+  --red-soft:#ffeceb;
+  --purple:#af52de;
+  --purple-soft:#f5edff;
+  --teal:#32ade6;
+  --teal-soft:#e3f5fd;
+  --indigo:#5856d6;
+  --indigo-soft:#eeeeff;
 
-  --radius:       16px;
-  --radius-sm:    10px;
-  --shadow:       0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
-  --shadow-card:  0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-card:0 4px 32px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
 
-  --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --mono: 'DM Mono', ui-monospace, monospace;
+  --font:'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono:'DM Mono', ui-monospace, monospace;
 }
 
 html, body {
-  height: 100%;
-  font-family: var(--font);
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
+  height:100%;
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
-.layout { display: flex; min-height: 100vh; }
+.layout { display:flex; min-height:100vh; }
 
-/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
 .sidebar {
-  width: var(--sidebar-w);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  z-index: 100;
-  padding: 0 0 24px 0;
+  width:var(--sidebar-w);
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  z-index:100;
+  padding:0 0 24px 0;
 }
 
 .sidebar-brand {
-  display: block;
-  padding: 18px 16px 14px;
-  border-bottom: 1px solid var(--border);
+  display:block;
+  padding:18px 16px 14px;
+  border-bottom:1px solid var(--border);
 }
 
 .sidebar-logo-img {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
+  width:100%;
+  max-width:200px;
+  height:auto;
+  display:block;
+  margin:0 auto;
 }
 
-.brand-icon {
-  width: 36px; height: 36px;
-  background: var(--blue);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-size: 16px; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,122,255,0.35);
-}
-
-.brand-name { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.1; }
-.brand-sub  { font-size: 11px; color: var(--muted); font-weight: 400; }
-
-.sidebar-section { padding: 20px 12px 4px; }
+.sidebar-section { padding:20px 12px 4px; }
 
 .sidebar-section-label {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--muted);
-  padding: 0 8px; margin-bottom: 4px;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding:0 8px;
+  margin-bottom:4px;
 }
 
-.nav-item { list-style: none; }
+.nav-item { list-style:none; }
 
 .nav-link {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px; border-radius: var(--radius-sm);
-  font-size: 13.5px; font-weight: 500;
-  color: var(--text-2); text-decoration: none;
-  transition: background 0.15s, color 0.15s;
-  margin-bottom: 2px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 12px;
+  border-radius:var(--radius-sm);
+  font-size:13.5px;
+  font-weight:500;
+  color:var(--text-2);
+  text-decoration:none;
+  transition:background 0.15s, color 0.15s;
+  margin-bottom:2px;
 }
 
-.nav-link:hover { background: var(--bg); color: var(--text); }
-.nav-link.active { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
-.nav-link .nav-icon { width: 20px; text-align: center; font-size: 13px; opacity: 0.75; }
-.nav-link.active .nav-icon { opacity: 1; }
+.nav-link:hover { background:var(--bg); color:var(--text); }
+.nav-link.active { background:var(--blue-soft); color:var(--blue); font-weight:600; }
 
-.sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid var(--border); }
-.sidebar-footer-text { font-size: 11px; color: var(--muted); line-height: 1.6; }
-.sidebar-footer-text a { color: var(--blue); text-decoration: none; }
+.nav-link .nav-icon {
+  width:20px;
+  text-align:center;
+  font-size:13px;
+  opacity:0.75;
+}
 
-/* ─── MAIN ───────────────────────────────────────────────────────────────── */
-.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+.nav-link.active .nav-icon { opacity:1; }
 
-/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.sidebar-footer {
+  margin-top:auto;
+  padding:16px 20px 0;
+  border-top:1px solid var(--border);
+}
+
+.sidebar-footer-text {
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.sidebar-footer-text a {
+  color:var(--blue);
+  text-decoration:none;
+}
+
+.main {
+  margin-left:var(--sidebar-w);
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
 .topbar {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 32px; height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: sticky; top: 0; z-index: 90;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:90;
 }
 
-.topbar-left h1 { font-size: 17px; font-weight: 600; color: var(--text); letter-spacing: -0.015em; }
-.topbar-left p  { font-size: 12px; color: var(--muted); }
-.topbar-right   { display: flex; align-items: center; gap: 12px; }
+.topbar-left h1 {
+  font-size:17px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-0.015em;
+}
+
+.topbar-left p {
+  font-size:12px;
+  color:var(--muted);
+}
+
+.topbar-right {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
 
 .status-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--blue-soft); color: var(--blue);
-  border-radius: 999px; padding: 5px 12px;
-  font-size: 12px; font-weight: 600;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:var(--blue-soft);
+  color:var(--blue);
+  border-radius:999px;
+  padding:5px 12px;
+  font-size:12px;
+  font-weight:600;
 }
 
-.topbar-time { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.topbar-time {
+  font-size:12px;
+  color:var(--muted);
+  font-family:var(--mono);
+}
 
-/* ─── PAGE CONTENT ───────────────────────────────────────────────────────── */
-.page-content { padding: 28px 32px; flex: 1; }
+.page-content {
+  padding:28px 32px;
+  flex:1;
+}
 
-/* ─── TAB NAV ────────────────────────────────────────────────────────────── */
 .tab-nav {
-  display: flex;
-  gap: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 6px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow);
-  width: fit-content;
-  animation: fadeUp 0.35s ease both;
+  display:flex;
+  gap:4px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:6px;
+  margin-bottom:24px;
+  box-shadow:var(--shadow);
+  width:fit-content;
+  animation:fadeUp 0.35s ease both;
 }
 
 .tab-btn {
-  display: flex; align-items: center; gap: 7px;
-  padding: 8px 18px;
-  border: none; border-radius: var(--radius-sm);
-  font-family: var(--font); font-size: 13px; font-weight: 500;
-  color: var(--muted);
-  background: transparent;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-  white-space: nowrap;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 18px;
+  border:none;
+  border-radius:var(--radius-sm);
+  font-family:var(--font);
+  font-size:13px;
+  font-weight:500;
+  color:var(--muted);
+  background:transparent;
+  cursor:pointer;
+  transition:background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space:nowrap;
 }
 
-.tab-btn:hover { background: var(--bg); color: var(--text-2); }
+.tab-btn:hover { background:var(--bg); color:var(--text-2); }
 
 .tab-btn.active {
-  background: var(--blue);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(0,122,255,0.25);
+  background:var(--blue);
+  color:white;
+  font-weight:600;
+  box-shadow:0 2px 10px rgba(0,122,255,0.25);
 }
 
-.tab-btn i { font-size: 12px; }
+.tab-btn i { font-size:12px; }
 
-/* ─── TAB PANELS ─────────────────────────────────────────────────────────── */
-.tab-panel { display: none; }
+.tab-panel { display:none; }
+
 .tab-panel.active {
-  display: block;
-  animation: fadeUp 0.35s ease both;
+  display:block;
+  animation:fadeUp 0.35s ease both;
 }
 
-/* ─── METRIC GRID ────────────────────────────────────────────────────────── */
 .metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 24px;
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:14px;
+  margin-bottom:24px;
 }
 
 .metric-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 18px 16px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  transition: transform 0.18s, box-shadow 0.18s;
-  position: relative;
-  overflow: hidden;
-  animation: fadeUp 0.4s ease both;
+  background:var(--surface);
+  border-radius:var(--radius);
+  padding:18px 16px;
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  transition:transform 0.18s, box-shadow 0.18s;
+  position:relative;
+  overflow:hidden;
+  animation:fadeUp 0.4s ease both;
 }
 
 .metric-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  border-radius: var(--radius) var(--radius) 0 0;
+  content:'';
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:3px;
+  border-radius:var(--radius) var(--radius) 0 0;
 }
 
-.metric-card.blue::before   { background: var(--blue); }
-.metric-card.green::before  { background: var(--green); }
-.metric-card.amber::before  { background: var(--amber); }
-.metric-card.red::before    { background: var(--red); }
-.metric-card.purple::before { background: var(--purple); }
-.metric-card.teal::before   { background: var(--teal); }
+.metric-card.blue::before { background:var(--blue); }
+.metric-card.green::before { background:var(--green); }
+.metric-card.amber::before { background:var(--amber); }
+.metric-card.red::before { background:var(--red); }
+.metric-card.purple::before { background:var(--purple); }
+.metric-card.teal::before { background:var(--teal); }
 
-.metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.metric-card:hover {
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-card);
+}
 
 .metric-icon {
-  width: 32px; height: 32px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; margin-bottom: 12px;
+  width:32px;
+  height:32px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  margin-bottom:12px;
 }
 
-.metric-card.blue   .metric-icon { background: var(--blue-soft);   color: var(--blue); }
-.metric-card.green  .metric-icon { background: var(--green-soft);  color: #1d8a3a; }
-.metric-card.amber  .metric-icon { background: var(--amber-soft);  color: #c7760a; }
-.metric-card.red    .metric-icon { background: var(--red-soft);    color: #c0291f; }
-.metric-card.purple .metric-icon { background: var(--purple-soft); color: var(--purple); }
-.metric-card.teal   .metric-icon { background: var(--teal-soft);   color: #1a7fa8; }
+.metric-card.blue .metric-icon { background:var(--blue-soft); color:var(--blue); }
+.metric-card.green .metric-icon { background:var(--green-soft); color:#1d8a3a; }
+.metric-card.amber .metric-icon { background:var(--amber-soft); color:#c7760a; }
+.metric-card.red .metric-icon { background:var(--red-soft); color:#c0291f; }
+.metric-card.purple .metric-icon { background:var(--purple-soft); color:var(--purple); }
+.metric-card.teal .metric-icon { background:var(--teal-soft); color:#1a7fa8; }
 
 .metric-value {
-  font-size: 26px; font-weight: 700; letter-spacing: -0.04em;
-  color: var(--text); line-height: 1; margin-bottom: 4px;
+  font-size:26px;
+  font-weight:700;
+  letter-spacing:-0.04em;
+  color:var(--text);
+  line-height:1;
+  margin-bottom:4px;
 }
 
-.metric-label { font-size: 11.5px; color: var(--muted); font-weight: 500; }
+.metric-label {
+  font-size:11.5px;
+  color:var(--muted);
+  font-weight:500;
+}
 
-/* stagger children */
-.metrics-grid .metric-card:nth-child(1) { animation-delay: 0.05s; }
-.metrics-grid .metric-card:nth-child(2) { animation-delay: 0.10s; }
-.metrics-grid .metric-card:nth-child(3) { animation-delay: 0.15s; }
-.metrics-grid .metric-card:nth-child(4) { animation-delay: 0.20s; }
-
-/* ─── CHARTS ROW ─────────────────────────────────────────────────────────── */
 .charts-row {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 16px;
+  display:grid;
+  grid-template-columns:1fr 380px;
+  gap:16px;
 }
 
 .section-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  overflow: hidden;
-  animation: fadeUp 0.45s ease 0.25s both;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  border:1px solid var(--border);
+  overflow:hidden;
+  animation:fadeUp 0.45s ease 0.25s both;
 }
 
 .section-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 20px; border-bottom: 1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
 }
 
 .section-title {
-  font-size: 14px; font-weight: 600; color: var(--text);
-  letter-spacing: -0.01em;
-  display: flex; align-items: center; gap: 8px;
+  font-size:14px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-0.01em;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
 .title-icon {
-  width: 26px; height: 26px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
+  width:26px;
+  height:26px;
+  border-radius:7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
 }
 
-.section-body { padding: 20px; }
+.section-body { padding:20px; }
 
-/* ─── CHART CONTAINER ────────────────────────────────────────────────────── */
-.chart-wrap { position: relative; height: 300px; }
+.chart-wrap {
+  position:relative;
+  height:300px;
+}
 
-/* ─── INSIGHT CARD ───────────────────────────────────────────────────────── */
-.insight-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.chart-legend {
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:14px;
+}
+
+.legend-item {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  color:var(--text-2);
+  font-weight:500;
+}
+
+.legend-dot {
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+.risk-summary {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:10px;
+  margin-top:16px;
+}
+
+.risk-box {
+  padding:12px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--border);
+  text-align:center;
+}
+
+.risk-box.low { background:var(--green-soft); }
+.risk-box.medium { background:var(--amber-soft); }
+.risk-box.high { background:var(--red-soft); }
+
+.risk-num {
+  font-size:20px;
+  font-weight:700;
+  line-height:1;
+}
+
+.risk-box.low .risk-num { color:#1d8a3a; }
+.risk-box.medium .risk-num { color:#c7760a; }
+.risk-box.high .risk-num { color:#c0291f; }
+
+.risk-label {
+  margin-top:5px;
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--muted);
+}
+
+.insight-list {
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
 
 .insight-item {
-  display: flex; flex-direction: column; gap: 3px;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding:12px 14px;
+  border-radius:var(--radius-sm);
+  background:var(--surface-2);
+  border:1px solid var(--border);
 }
 
 .insight-label {
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  color: var(--muted);
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:var(--muted);
 }
 
 .insight-value {
-  font-size: 13px; font-weight: 500; color: var(--text-2); line-height: 1.4;
+  font-size:13px;
+  font-weight:500;
+  color:var(--text-2);
+  line-height:1.4;
 }
 
-/* ─── ERROR STAT PAIR ────────────────────────────────────────────────────── */
-.stat-pair {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-  margin-bottom: 14px;
-}
-
-.stat-box {
-  padding: 12px 14px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  text-align: center;
-}
-
-.stat-box .stat-num { font-size: 22px; font-weight: 700; letter-spacing: -0.03em; }
-.stat-box .stat-lbl { font-size: 10.5px; color: var(--muted); font-weight: 500; margin-top: 2px; }
-
-.stat-box.red-box   { background: var(--red-soft);   }
-.stat-box.amber-box { background: var(--amber-soft);  }
-.stat-box.red-box   .stat-num { color: #c0291f; }
-.stat-box.amber-box .stat-num { color: #c7760a; }
-
-/* ─── CHART LEGEND ───────────────────────────────────────────────────────── */
-.chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
-.legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); font-weight: 500; }
-.legend-dot   { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-
-/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
 .main-footer {
-  padding: 16px 32px;
-  border-top: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px; color: var(--muted);
-  background: var(--surface);
+  padding:16px 32px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:12px;
+  color:var(--muted);
+  background:var(--surface);
 }
 
-.main-footer a { color: var(--blue); text-decoration: none; }
-.main-footer a:hover { text-decoration: underline; }
+.main-footer a {
+  color:var(--blue);
+  text-decoration:none;
+}
 
-/* ─── ANIMATIONS ─────────────────────────────────────────────────────────── */
+.main-footer a:hover { text-decoration:underline; }
+
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
 }
 </style>
 </head>
-<body>
 
+<body>
 <div class="layout">
 
-  <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
-   <aside class="sidebar">
+  <aside class="sidebar">
     <div class="sidebar-brand">
       <img src="static/assets/API_Sentinel.png" alt="API Sentinel Logo" class="sidebar-logo-img">
     </div>
@@ -422,12 +550,19 @@ html, body {
         </li>
       </ul>
     </div>
+
     <div class="sidebar-section">
       <div class="sidebar-section-label">Alerts</div>
       <ul style="list-style:none;">
-        <li class="nav-item"><a href="/email-alerts" class="nav-link"><i class="nav-icon fa-solid fa-envelope"></i>Email Alerts</a></li>
+        <li class="nav-item">
+          <a href="/email-alerts" class="nav-link">
+            <i class="nav-icon fa-solid fa-envelope"></i>
+            Email Alerts
+          </a>
+        </li>
       </ul>
     </div>
+
     <div class="sidebar-footer">
       <div class="sidebar-footer-text">
         &copy; Spring 2026 &mdash; <a href="https://github.com/RafqaHaddad1">Rafqa Haddad</a><br>
@@ -435,14 +570,15 @@ html, body {
       </div>
     </div>
   </aside>
-  <!-- ── MAIN ───────────────────────────────────────────────────────── -->
+
   <div class="main">
 
     <header class="topbar">
       <div class="topbar-left">
         <h1>Model Performance</h1>
-        <p>Supervised, unsupervised, and rule-based detection metrics</p>
+        <p>Supervised, unsupervised, and MiTM detection metrics</p>
       </div>
+
       <div class="topbar-right">
         <div class="status-pill" style="background:var(--indigo-soft);color:var(--indigo);">
           <i class="fa-solid fa-brain" style="font-size:11px;"></i>
@@ -454,7 +590,6 @@ html, body {
 
     <main class="page-content">
 
-      <!-- ── TAB NAV ─────────────────────────────────────────────────── -->
       <div class="tab-nav">
         <button class="tab-btn active" onclick="switchTab('supervised', this)">
           <i class="fa-solid fa-robot"></i> Supervised Model
@@ -467,9 +602,7 @@ html, body {
         </button>
       </div>
 
-      <!-- ════════════════════════════════════════════════════ -->
-      <!-- TAB: SUPERVISED                                      -->
-      <!-- ════════════════════════════════════════════════════ -->
+      <!-- SUPERVISED TAB -->
       <div id="tab-supervised" class="tab-panel active">
 
         <div class="metrics-grid">
@@ -478,16 +611,19 @@ html, body {
             <div class="metric-value" id="sup-accuracy">--</div>
             <div class="metric-label">Accuracy</div>
           </div>
+
           <div class="metric-card green">
             <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
             <div class="metric-value" id="sup-precision">--</div>
             <div class="metric-label">Precision</div>
           </div>
+
           <div class="metric-card amber">
             <div class="metric-icon"><i class="fa-solid fa-magnet"></i></div>
             <div class="metric-value" id="sup-recall">--</div>
             <div class="metric-label">Recall</div>
           </div>
+
           <div class="metric-card red">
             <div class="metric-icon"><i class="fa-solid fa-star-half-stroke"></i></div>
             <div class="metric-value" id="sup-f1">--</div>
@@ -496,24 +632,52 @@ html, body {
         </div>
 
         <div class="charts-row">
+
           <div class="section-card">
             <div class="section-header">
               <div class="section-title">
                 <div class="title-icon" style="background:var(--blue-soft);color:var(--blue);">
-                  <i class="fa-solid fa-table-cells"></i>
+                  <i class="fa-solid fa-gauge-high"></i>
                 </div>
-                Confusion Matrix
+                Risk Score Distribution
               </div>
             </div>
+
             <div class="section-body">
               <div class="chart-wrap">
-                <canvas id="supervisedConfusionChart"></canvas>
+                <canvas id="riskDistributionChart"></canvas>
               </div>
+
               <div class="chart-legend">
-                <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>True Positive</div>
-                <div class="legend-item"><span class="legend-dot" style="background:var(--amber)"></span>False Positive</div>
-                <div class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span>True Negative</div>
-                <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>False Negative</div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:var(--green)"></span>
+                  Low Risk
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:var(--amber)"></span>
+                  Medium Risk
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot" style="background:var(--red)"></span>
+                  High Risk
+                </div>
+              </div>
+
+              <div class="risk-summary">
+                <div class="risk-box low">
+                  <div class="risk-num" id="risk-low">--</div>
+                  <div class="risk-label">Low Risk</div>
+                </div>
+
+                <div class="risk-box medium">
+                  <div class="risk-num" id="risk-medium">--</div>
+                  <div class="risk-label">Medium Risk</div>
+                </div>
+
+                <div class="risk-box high">
+                  <div class="risk-num" id="risk-high">--</div>
+                  <div class="risk-label">High Risk</div>
+                </div>
               </div>
             </div>
           </div>
@@ -521,63 +685,82 @@ html, body {
           <div class="section-card">
             <div class="section-header">
               <div class="section-title">
-                <div class="title-icon" style="background:var(--red-soft);color:var(--red);">
-                  <i class="fa-solid fa-triangle-exclamation"></i>
+                <div class="title-icon" style="background:var(--purple-soft);color:var(--purple);">
+                  <i class="fa-solid fa-brain"></i>
                 </div>
-                Error Analysis
+                How the Model Works
               </div>
             </div>
+
             <div class="section-body">
-              <div class="stat-pair">
-                <div class="stat-box amber-box">
-                  <div class="stat-num" id="sup-fp">--</div>
-                  <div class="stat-lbl">False Positives</div>
-                </div>
-                <div class="stat-box red-box">
-                  <div class="stat-num" id="sup-fn">--</div>
-                  <div class="stat-lbl">False Negatives</div>
-                </div>
-              </div>
               <ul class="insight-list">
                 <li class="insight-item">
-                  <span class="insight-label">Best Use</span>
-                  <span class="insight-value">Main attack classification pipeline</span>
+                  <span class="insight-label">Step 1</span>
+                  <span class="insight-value">
+                    The proxy intercepts each API request before it reaches the backend service.
+                  </span>
                 </li>
+
                 <li class="insight-item">
-                  <span class="insight-label">Observation</span>
-                  <span class="insight-value">High recall catches most malicious traffic with minimal misses</span>
+                  <span class="insight-label">Step 2</span>
+                  <span class="insight-value">
+                    The system extracts request features such as method, endpoint, headers, payload, token behavior, response time, and anomaly scores.
+                  </span>
+                </li>
+
+                <li class="insight-item">
+                  <span class="insight-label">Step 3</span>
+                  <span class="insight-value">
+                    The supervised model detects known attack patterns, while the unsupervised model identifies unusual behavior.
+                  </span>
+                </li>
+
+                <li class="insight-item">
+                  <span class="insight-label">Risk Decision</span>
+                  <span class="insight-value">
+                    Scores are combined into a final risk level: Low, Medium, or High Risk.
+                  </span>
+                </li>
+
+                <li class="insight-item">
+                  <span class="insight-label">Action</span>
+                  <span class="insight-value">
+                    Low risk requests are allowed, medium risk requests are monitored, and high risk requests can be blocked or escalated.
+                  </span>
                 </li>
               </ul>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- ════════════════════════════════════════════════════ -->
-      <!-- TAB: UNSUPERVISED                                    -->
-      <!-- ════════════════════════════════════════════════════ -->
+      <!-- UNSUPERVISED TAB -->
       <div id="tab-unsupervised" class="tab-panel">
 
         <div class="metrics-grid">
           <div class="metric-card blue">
-            <div class="metric-icon"><i class="fa-solid fa-chart-simple"></i></div>
-            <div class="metric-value" id="unsup-avg-score">--</div>
-            <div class="metric-label">Anomaly Score Avg</div>
+            <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="metric-value" id="unsup-accuracy">--</div>
+            <div class="metric-label">Accuracy</div>
           </div>
+
           <div class="metric-card green">
-            <div class="metric-icon"><i class="fa-solid fa-wave-square"></i></div>
-            <div class="metric-value" id="unsup-normal-fit">--</div>
-            <div class="metric-label">Normal Pattern Fit</div>
+            <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="metric-value" id="unsup-precision">--</div>
+            <div class="metric-label">Precision</div>
           </div>
+
           <div class="metric-card amber">
-            <div class="metric-icon"><i class="fa-solid fa-flag"></i></div>
-            <div class="metric-value" id="unsup-flagged">--</div>
-            <div class="metric-label">Anomalies Flagged</div>
+            <div class="metric-icon"><i class="fa-solid fa-magnet"></i></div>
+            <div class="metric-value" id="unsup-recall">--</div>
+            <div class="metric-label">Recall</div>
           </div>
+
           <div class="metric-card red">
-            <div class="metric-icon"><i class="fa-solid fa-radiation"></i></div>
-            <div class="metric-value" id="unsup-high-risk">--</div>
-            <div class="metric-label">High-Risk Outliers</div>
+            <div class="metric-icon"><i class="fa-solid fa-star-half-stroke"></i></div>
+            <div class="metric-value" id="unsup-f1">--</div>
+            <div class="metric-label">F1 Score</div>
           </div>
         </div>
 
@@ -588,16 +771,28 @@ html, body {
                 <div class="title-icon" style="background:var(--amber-soft);color:var(--amber);">
                   <i class="fa-solid fa-chart-line"></i>
                 </div>
-                Anomaly Detection Distribution
+                Unsupervised Model Metrics
               </div>
             </div>
+
             <div class="section-body">
               <div class="chart-wrap">
-                <canvas id="unsupervisedChart"></canvas>
+                <canvas id="unsupervisedRiskChart"></canvas>
               </div>
+
               <div class="chart-legend">
-                <div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span>Normal Score</div>
-                <div class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Anomaly Score</div>
+<div class="legend-item">
+  <span class="legend-dot" style="background:var(--green)"></span>
+  Low Anomaly
+</div>
+<div class="legend-item">
+  <span class="legend-dot" style="background:var(--amber)"></span>
+  Medium Anomaly
+</div>
+<div class="legend-item">
+  <span class="legend-dot" style="background:var(--red)"></span>
+  High Anomaly
+</div>
               </div>
             </div>
           </div>
@@ -611,19 +806,22 @@ html, body {
                 Interpretation
               </div>
             </div>
+
             <div class="section-body">
               <ul class="insight-list">
                 <li class="insight-item">
                   <span class="insight-label">Best Use</span>
-                  <span class="insight-value">Unknown and zero-day attack patterns</span>
+                  <span class="insight-value">Unknown and zero-day attack patterns.</span>
                 </li>
+
                 <li class="insight-item">
                   <span class="insight-label">Strength</span>
-                  <span class="insight-value">Detects unusual behavior without requiring labeled data</span>
+                  <span class="insight-value">Detects unusual behavior without relying only on labeled attack examples.</span>
                 </li>
+
                 <li class="insight-item">
                   <span class="insight-label">Limitation</span>
-                  <span class="insight-value">May flag rare but legitimate traffic as anomalous</span>
+                  <span class="insight-value">May flag rare but legitimate requests as suspicious.</span>
                 </li>
               </ul>
             </div>
@@ -631,31 +829,32 @@ html, body {
         </div>
       </div>
 
-      <!-- ════════════════════════════════════════════════════ -->
-      <!-- TAB: MITM                                            -->
-      <!-- ════════════════════════════════════════════════════ -->
+      <!-- MITM TAB -->
       <div id="tab-mitm" class="tab-panel">
 
         <div class="metrics-grid">
           <div class="metric-card blue">
-            <div class="metric-icon"><i class="fa-solid fa-bell"></i></div>
-            <div class="metric-value" id="mitm-alerts">--</div>
-            <div class="metric-label">MITM Alerts</div>
+            <div class="metric-icon"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="metric-value" id="mitm-accuracy">--</div>
+            <div class="metric-label">Accuracy</div>
           </div>
+
           <div class="metric-card green">
-            <div class="metric-icon"><i class="fa-solid fa-code"></i></div>
-            <div class="metric-value" id="mitm-replay">--</div>
-            <div class="metric-label">Header Tampering</div>
+            <div class="metric-icon"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="metric-value" id="mitm-precision">--</div>
+            <div class="metric-label">Precision</div>
           </div>
+
           <div class="metric-card amber">
-            <div class="metric-icon"><i class="fa-solid fa-file-pen"></i></div>
-            <div class="metric-value" id="mitm-ip-changes">--</div>
-            <div class="metric-label">Payload Changes</div>
+            <div class="metric-icon"><i class="fa-solid fa-magnet"></i></div>
+            <div class="metric-value" id="mitm-recall">--</div>
+            <div class="metric-label">Recall</div>
           </div>
+
           <div class="metric-card red">
-            <div class="metric-icon"><i class="fa-solid fa-key"></i></div>
-            <div class="metric-value" id="mitm-sequence">--</div>
-            <div class="metric-label">Token Mismatch</div>
+            <div class="metric-icon"><i class="fa-solid fa-star-half-stroke"></i></div>
+            <div class="metric-value" id="mitm-f1">--</div>
+            <div class="metric-label">F1 Score</div>
           </div>
         </div>
 
@@ -666,9 +865,10 @@ html, body {
                 <div class="title-icon" style="background:var(--red-soft);color:var(--red);">
                   <i class="fa-solid fa-chart-bar"></i>
                 </div>
-                MITM / Rule-Based Detection Events
+                MITM Autoencoder Metrics
               </div>
             </div>
+
             <div class="section-body">
               <div class="chart-wrap">
                 <canvas id="mitmChart"></canvas>
@@ -685,24 +885,28 @@ html, body {
                 Detection Logic
               </div>
             </div>
+
             <div class="section-body">
               <ul class="insight-list">
                 <li class="insight-item">
                   <span class="insight-label">Best Use</span>
-                  <span class="insight-value">Request tampering and interception indicators</span>
+                  <span class="insight-value">Token replay, hijacking behavior, and suspicious session changes.</span>
                 </li>
+
                 <li class="insight-item">
                   <span class="insight-label">Examples</span>
-                  <span class="insight-value">Changed headers, altered payload, suspicious proxy path</span>
+                  <span class="insight-value">Changed IP address, changed user-agent, replayed token, or abnormal request sequence.</span>
                 </li>
+
                 <li class="insight-item">
-                  <span class="insight-label">Nature</span>
-                  <span class="insight-value">Rule-based, deterministic checks — no ML inference</span>
+                  <span class="insight-label">Purpose</span>
+                  <span class="insight-value">Adds behavioral detection on top of payload-based attack detection.</span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
+
       </div>
 
     </main>
@@ -715,39 +919,41 @@ html, body {
   </div>
 </div>
 
-
 <script>
-/* ── LIVE CLOCK ──────────────────────────────────────────────────── */
 function updateClock() {
-  document.getElementById('liveClock').textContent = new Date().toLocaleTimeString('en-US', {
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-  });
+  document.getElementById('liveClock').textContent =
+    new Date().toLocaleTimeString('en-US', {
+      hour:'2-digit',
+      minute:'2-digit',
+      second:'2-digit',
+      hour12:false
+    });
 }
+
 setInterval(updateClock, 1000);
 updateClock();
 
-/* ── ACTIVE NAV ──────────────────────────────────────────────────── */
 function highlightActiveNav() {
   const path = window.location.pathname;
   document.querySelectorAll('.nav-link').forEach(link => {
-    if (link.getAttribute('href') === path) link.classList.add('active');
+    if (link.getAttribute('href') === path) {
+      link.classList.add('active');
+    }
   });
 }
 
-/* ── TAB SWITCHER ────────────────────────────────────────────────── */
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
 }
 
-/* ── CHART DEFAULTS ──────────────────────────────────────────────── */
-/* ── CHART DEFAULTS ──────────────────────────────────────────────── */
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color = '#8e8e93';
 
-let supervisedChartInstance = null;
+let riskDistributionChartInstance = null;
 let unsupervisedChartInstance = null;
 let mitmChartInstance = null;
 
@@ -757,142 +963,133 @@ function setText(id, value) {
 }
 
 function formatPercent(value) {
-  return `${(Number(value || 0) * 100).toFixed(2)}%`;
+  return `${Number(value || 0).toFixed(2)}%`;
 }
 
 function formatNumber(value) {
-  return `${Number(value || 0)}`;
+  return `${Number(value || 0).toLocaleString()}`;
 }
 
-function formatDecimal(value) {
-  return `${Number(value || 0).toFixed(2)}`;
-}
-
-/* ── SUPERVISED CHART ───────────────────────────────────────────── */
-function renderSupervisedChart(data) {
-  const ctx = document.getElementById('supervisedConfusionChart');
+function renderRiskDistributionChart(data) {
+  const ctx = document.getElementById('riskDistributionChart');
   if (!ctx) return;
 
-  if (supervisedChartInstance) supervisedChartInstance.destroy();
+  if (riskDistributionChartInstance) {
+    riskDistributionChartInstance.destroy();
+  }
 
-  supervisedChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['True Positive', 'False Positive', 'True Negative', 'False Negative'],
-      datasets: [{
-        label: 'Count',
-        data: [
-          data.true_positive || 0,
-          data.false_positive || 0,
-          data.true_negative || 0,
-          data.false_negative || 0
-        ],
-        backgroundColor: ['#34c759', '#ff9f0a', '#32ade6', '#ff3b30'],
-        borderRadius: 8,
-        borderSkipped: false
+  const low = Number(data.low_risk || 0);
+  const medium = Number(data.medium_risk || 0);
+  const high = Number(data.high_risk || 0);
+  const total = Number(data.total_requests || (low + medium + high));
+
+  riskDistributionChartInstance = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels:['Low Risk', 'Medium Risk', 'High Risk'],
+      datasets:[{
+        data:[low, medium, high],
+        backgroundColor:['#34c759', '#ff9f0a', '#ff3b30'],
+        borderWidth:0,
+        hoverOffset:8
       }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-          ticks: { font: { size: 11 } }
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          callbacks:{
+            label:function(context) {
+              const value = context.raw || 0;
+              const percent = total ? ((value / total) * 100).toFixed(2) : '0.00';
+              return `${context.label}: ${value} requests (${percent}%)`;
+            }
+          }
         }
       }
     }
   });
 }
 
-/* ── UNSUPERVISED CHART ─────────────────────────────────────────── */
-function renderUnsupervisedChart(trend) {
-  const ctx = document.getElementById('unsupervisedChart');
-  if (!ctx) return;
+function renderUnsupervisedRiskChart(data) {
+  const ctx = document.getElementById('unsupervisedRiskChart');
 
-  if (unsupervisedChartInstance) unsupervisedChartInstance.destroy();
+  if (unsupervisedChartInstance) {
+    unsupervisedChartInstance.destroy();
+  }
 
-  const chartCtx = ctx.getContext('2d');
-
-  const gradG = chartCtx.createLinearGradient(0, 0, 0, 280);
-  gradG.addColorStop(0, 'rgba(52,199,89,0.18)');
-  gradG.addColorStop(1, 'rgba(52,199,89,0)');
-
-  const gradR = chartCtx.createLinearGradient(0, 0, 0, 280);
-  gradR.addColorStop(0, 'rgba(255,59,48,0.15)');
-  gradR.addColorStop(1, 'rgba(255,59,48,0)');
-
-  unsupervisedChartInstance = new Chart(chartCtx, {
-    type: 'line',
+  unsupervisedChartInstance = new Chart(ctx, {
+    type: 'bar',
     data: {
-      labels: trend.labels || [],
+      labels: ['Traffic'],
       datasets: [
         {
-          label: 'Normal Score',
-          data: trend.normal_scores || [],
-          borderColor: '#34c759',
-          backgroundColor: gradG,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#34c759',
-          borderWidth: 2
+          label: 'Low Risk',
+          data: [data.low || 0],
+          backgroundColor: '#34c759'
         },
         {
-          label: 'Anomaly Score',
-          data: trend.anomaly_scores || [],
-          borderColor: '#ff3b30',
-          backgroundColor: gradR,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: '#ff3b30',
-          borderWidth: 2
+          label: 'Medium Risk',
+          data: [data.medium || 0],
+          backgroundColor: '#ff9f0a'
+        },
+        {
+          label: 'High Risk',
+          data: [data.high || 0],
+          backgroundColor: '#ff3b30'
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        x: {
+          stacked: true,
+          grid: { display: false }
+        },
         y: {
-          beginAtZero: true,
-          max: 1,
-          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-          ticks: { font: { size: 11 } }
+          stacked: true,
+          beginAtZero: true
         }
       }
     }
   });
 }
-
-/* ── MITM CHART ─────────────────────────────────────────────────── */
-function renderMitmChart(metrics) {
+function renderMitmChart(data) {
   const ctx = document.getElementById('mitmChart');
   if (!ctx) return;
 
-  if (mitmChartInstance) mitmChartInstance.destroy();
+  if (mitmChartInstance) {
+    mitmChartInstance.destroy();
+  }
 
   mitmChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Replay Events', 'IP Changes', 'User-Agent Changes', 'Sequence Anomalies', 'High Hijack Events'],
+      labels: [
+        'Replay Events',
+        'IP Changes',
+        'User-Agent Changes',
+        'Sequence Anomalies'
+      ],
       datasets: [{
-        label: 'Detections',
+        label: 'Detected Events',
         data: [
-          metrics.replay_events || 0,
-          metrics.ip_changes || 0,
-          metrics.user_agent_changes || 0,
-          metrics.sequence_anomalies || 0,
-          metrics.high_hijack_events || 0
+          data.replay_events || 0,
+          data.ip_changes || 0,
+          data.user_agent_changes || 0,
+          data.sequence_anomalies || 0
         ],
-        backgroundColor: ['#32ade6', '#ff9f0a', '#ff3b30', '#af52de', '#ff6b35'],
+        backgroundColor: ['#007aff', '#ff9f0a', '#af52de', '#ff3b30'],
         borderRadius: 8,
         borderSkipped: false
       }]
@@ -900,24 +1097,27 @@ function renderMitmChart(metrics) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false }
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false } },
         y: {
           beginAtZero: true,
-          grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
-          ticks: { font: { size: 11 } }
+          ticks: {
+            precision: 0
+          }
         }
       }
     }
   });
 }
-
-/* ── LOAD DATA ──────────────────────────────────────────────────── */
 async function loadModelPerformance() {
   try {
     const res = await fetch('/api/model-performance/all');
     const data = await res.json();
+
+    console.log('Model performance response:', data);
 
     if (!res.ok || !data.success) {
       console.error('Model performance API error:', data);
@@ -927,35 +1127,30 @@ async function loadModelPerformance() {
     const sup = data.supervised || {};
     const unsup = data.unsupervised || {};
     const mitm = data.mitm || {};
+    const risk = data.risk_distribution || {};
 
-    // Supervised metrics
     setText('sup-accuracy', formatPercent(sup.accuracy));
     setText('sup-precision', formatPercent(sup.precision));
     setText('sup-recall', formatPercent(sup.recall));
     setText('sup-f1', formatPercent(sup.f1_score));
-    setText('sup-fp', formatNumber(sup.false_positive));
-    setText('sup-fn', formatNumber(sup.false_negative));
 
-    renderSupervisedChart(sup);
+    setText('risk-low', formatNumber(risk.low_risk));
+    setText('risk-medium', formatNumber(risk.medium_risk));
+    setText('risk-high', formatNumber(risk.high_risk));
 
-    // Unsupervised metrics
-    setText('unsup-avg-score', formatDecimal(unsup.avg_anomaly_score));
-    setText('unsup-normal-fit', formatPercent(unsup.normal_pattern_fit));
-    setText('unsup-flagged', formatNumber(unsup.anomalies_flagged));
-    setText('unsup-high-risk', formatNumber(unsup.high_risk_outliers));
+    renderRiskDistributionChart(risk);
 
-    // If you also added the dedicated unsupervised trend endpoint, use that
-    const unsupRes = await fetch('/api/model-performance/unsupervised');
-    const unsupData = await unsupRes.json();
-    if (unsupRes.ok && unsupData.success) {
-      renderUnsupervisedChart(unsupData.trend || { labels: [], normal_scores: [], anomaly_scores: [] });
-    }
+    setText('unsup-accuracy', formatPercent(unsup.accuracy));
+    setText('unsup-precision', formatPercent(unsup.precision));
+    setText('unsup-recall', formatPercent(unsup.recall));
+    setText('unsup-f1', formatPercent(unsup.f1_score));
 
-    // MiTM metrics
-    setText('mitm-alerts', formatNumber(mitm.mitm_alerts));
-    setText('mitm-replay', formatNumber(mitm.replay_events));
-    setText('mitm-ip-changes', formatNumber(mitm.ip_changes));
-    setText('mitm-sequence', formatNumber(mitm.sequence_anomalies));
+    renderUnsupervisedRiskChart(data.unsupervised_risk || {});
+
+    setText('mitm-accuracy', formatPercent(mitm.accuracy));
+    setText('mitm-precision', formatPercent(mitm.precision));
+    setText('mitm-recall', formatPercent(mitm.recall));
+    setText('mitm-f1', formatPercent(mitm.f1_score));
 
     renderMitmChart(mitm);
 

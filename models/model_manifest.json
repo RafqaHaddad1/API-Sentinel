@@ -1,0 +1,8 @@
+{
+  "rf_model": "rf_model.pkl",
+  "rf_threshold": "rf_threshold.pkl",
+  "iso_model": "iso_model.pkl",
+  "iso_threshold": "iso_threshold.pkl",
+  "feature_columns": "feature_columns.pkl",
+  "trained_at": "2026-04-28T20:21:39.855451"
+}

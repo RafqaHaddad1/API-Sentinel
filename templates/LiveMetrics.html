@@ -226,6 +226,7 @@ html, body {
 /* ─── PAGE CONTENT ───────────────────────────────────────────────────────────── */
 .page-content { padding: 28px 32px; flex: 1; }
 
+
 /* ─── FILTER BAR ─────────────────────────────────────────────────────────────── */
 .filter-card {
   background: var(--surface);
@@ -778,6 +779,24 @@ function highlightActiveNav() {
     if (link.getAttribute('href') === path) link.classList.add('active');
   });
 }
+/* ── DATATABLE ────────────────────────────────────────────────────── */
+let tableInstance      = null;
+function initializeDataTable() {
+  if (tableInstance) { tableInstance.destroy(); }
+  tableInstance = $('#requestsTable').DataTable({
+    responsive: true,
+    autoWidth: false,
+    pageLength: 5,
+    order: [[4, 'desc']],
+    columnDefs: [{ orderable: false, targets: 3 }],
+    language: {
+      search: '',
+      searchPlaceholder: 'Search requests…',
+      lengthMenu: 'Show _MENU_ rows',
+      info: 'Showing _START_–_END_ of _TOTAL_',
+    }
+  });
+}
 
 /* ── BADGE HELPERS ────────────────────────────────────────────────── */
 function getMethodBadge(method) {
@@ -833,18 +852,25 @@ async function loadRequests() {
     const from     = document.getElementById('filterFrom').value.trim();
 
     const params = new URLSearchParams();
-    if (ip)       params.append('ip', ip);
+
+    if (ip) params.append('ip', ip);
     if (endpoint) params.append('endpoint', endpoint);
-    if (method)   params.append('method', method);
-    if (status)   params.append('status', status);
-    if (from)     params.append('from', from);
+    if (method) params.append('method', method);
+    if (status) params.append('status', status);
+    if (from) params.append('from', from);
 
     const response = await fetch(`/api/live-requests?${params.toString()}`);
-    const result   = await response.json();
+    const result = await response.json();
 
     if (!response.ok || !result.success) {
       console.error('Live requests API error:', result);
       return;
+    }
+
+    // IMPORTANT: destroy DataTable BEFORE editing tbody
+    if (tableInstance) {
+      tableInstance.destroy();
+      tableInstance = null;
     }
 
     const tableBody = document.getElementById('tableBody');
@@ -853,18 +879,20 @@ async function loadRequests() {
     if (!result.data || result.data.length === 0) {
       tableBody.innerHTML = `
         <tr>
-          <td colspan="8">
+          <td colspan="7">
             <div class="empty-state">
               <i class="fa-solid fa-inbox"></i>
               <p>No requests match the current filters.</p>
             </div>
           </td>
-        </tr>`;
+        </tr>
+      `;
       return;
     }
 
-    (result.data || []).forEach(row => {
+    result.data.forEach(row => {
       const tr = document.createElement('tr');
+
       tr.innerHTML = `
         <td><span class="ts-cell">${row.timestamp ?? ''}</span></td>
         <td><span class="ip-cell">${row.ip_address ?? ''}</span></td>
@@ -872,16 +900,22 @@ async function loadRequests() {
         <td>${getMethodBadge(row.method)}</td>
         <td>${getStatusBadge(row)}</td>
         <td><span class="time-cell">${row.response_time_ms ?? 0} ms</span></td>
-        <td><a class="view-link" href="/request-investigation?id=${row.id}"><i class="fa-solid fa-arrow-up-right-from-square"></i> View</a></td>
+        <td>
+          <a class="view-link" href="/request-investigation?id=${row.id}">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> View
+          </a>
+        </td>
       `;
+
       tableBody.appendChild(tr);
     });
+
+    initializeDataTable();
 
   } catch (error) {
     console.error('Failed to load live requests:', error);
   }
 }
-
 async function labelRequest(id, label) {
   try {
     const res = await fetch("/api/label", {

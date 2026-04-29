@@ -680,7 +680,7 @@ async function saveRecipient() {
     const res    = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient_email: email })
+      body: JSON.stringify({ email: email })
     });
     const result = await res.json();
     if (!res.ok || !result.success) throw new Error(result.error || 'Failed to save');
@@ -738,8 +738,8 @@ function renderRecipients(recipients) {
   }
 
   container.innerHTML = recipients.map(r => {
-    const id        = r.config_id;
-    const email     = r.recipient_email || '';
+    const id        = r.id;
+    const email     = r.email || '';
     const active    = r.is_active === undefined ? 1 : r.is_active;
     const isActive  = !!active;
 

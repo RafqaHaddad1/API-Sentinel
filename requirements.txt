@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+flask
+httpx
+pandas
+numpy
+scikit-learn
+joblib
+nest_asyncio
+tensorflow

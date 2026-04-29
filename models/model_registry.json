@@ -1,0 +1,30 @@
+{
+  "random_forest": {
+    "model_name": "RandomForestClassifier",
+    "version": "rf_v1",
+    "model_file": "rf_model.pkl",
+    "feature_file": "feature_columns.pkl",
+    "threshold": 0.4,
+    "training_date": "2026-04-14",
+    "notes": "Main supervised intrusion detection model"
+  },
+  "isolation_forest": {
+    "model_name": "IsolationForest",
+    "version": "iso_v1",
+    "model_file": "iso_model.pkl",
+    "feature_file": "feature_columns.pkl",
+    "threshold": null,
+    "training_date": "2026-04-14",
+    "notes": "Unsupervised anomaly detection model"
+  },
+  "mitm_autoencoder": {
+    "model_name": "MITM Autoencoder",
+    "version": "mitm_v1",
+    "model_file": "mitm_autoencoder.keras",
+    "scaler_file": "mitm_scaler.pkl",
+    "config_file": "mitm_config.json",
+    "threshold": null,
+    "training_date": "2026-04-14",
+    "notes": "MITM anomaly behavior detection"
+  }
+}

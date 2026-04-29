@@ -612,9 +612,6 @@ html, body {
                 <button id="unblockBtn" class="btn-action btn-unblock" style="display:none;">
                   <i class="fa-solid fa-circle-play"></i> Unblock &amp; Resend
                 </button>
-                <button id="markSafeBtn" class="btn-action btn-safe" style="display:none;">
-                  <i class="fa-solid fa-shield-check"></i> Mark as Safe
-                </button>
                 <button id="retrainBtn" class="btn-action btn-retrain">
                   <i class="fa-solid fa-arrows-rotate"></i> Retrain Model
                 </button>
@@ -748,19 +745,17 @@ function renderFeatureTable(features) {
 
 function updateActionButtons(data) {
   const unblockBtn  = document.getElementById('unblockBtn');
-  const markSafeBtn = document.getElementById('markSafeBtn');
+
   const decision    = (data.decision || '').toLowerCase();
   const predicted   = (data.predicted_class || '').toLowerCase();
 
   unblockBtn.style.display  = 'none';
-  markSafeBtn.style.display = 'none';
+
 
   if (decision === 'block' || decision === 'blocked' || predicted === 'malicious') {
     unblockBtn.style.display  = 'inline-flex';
-    markSafeBtn.style.display = 'inline-flex';
-  } else if (decision === 'flag' || decision === 'flagged' || predicted === 'suspicious') {
-    markSafeBtn.style.display = 'inline-flex';
-  }
+
+  } 
 }
 
 function setActionMsg(type, text) {
@@ -873,6 +868,7 @@ async function retrainModel() {
 /* ── ACTIONS ─────────────────────────────────────────────────────── */
 async function unblockAndResend() {
   if (!currentRequestId) return;
+
   setActionMsg('info', '<i class="fa-solid fa-spinner fa-spin" style="margin-right:6px;"></i>Processing request…');
 
   try {
@@ -881,14 +877,36 @@ async function unblockAndResend() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: currentRequestId })
     });
-    const result = await response.json();
-    if (!response.ok || !result.success) throw new Error(result.error || 'Failed to unblock and resend request');
 
-    setActionMsg('success', '<i class="fa-solid fa-circle-check" style="margin-right:6px;"></i>Request unblocked and resent successfully.');
-    await loadRequestDetails(currentRequestId);
-  } catch (error) {
-    console.error('Failed to unblock/resend:', error);
-    setActionMsg('error', '<i class="fa-solid fa-circle-xmark" style="margin-right:6px;"></i>' + error.message);
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      setActionMsg('error', `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>${data.error || 'Failed to process request'}`);
+      return;
+    }
+
+    if (data.resend?.ok) {
+      setActionMsg(
+        'success',
+        `<i class="fa-solid fa-check" style="margin-right:6px;"></i>Marked safe and resent (HTTP ${data.resend.status_code})`
+      );
+    } else if (data.marked_safe) {
+      setActionMsg(
+        'warning',
+        `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Marked safe, but resend failed: ${data.resend?.error || 'unknown error'}`
+      );
+    }
+
+    // Refresh the request panel so the user sees the new status/label
+    if (typeof loadRequestDetails === 'function') {
+      loadRequestDetails(currentRequestId);
+    }
+
+  } catch (err) {
+    setActionMsg(
+      'error',
+      `<i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>Network error: ${err.message}`
+    );
   }
 }
 
@@ -922,7 +940,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('unblockBtn').addEventListener('click', unblockAndResend);
-  document.getElementById('markSafeBtn').addEventListener('click', markAsSafe);
   document.getElementById('retrainBtn').addEventListener('click', retrainModel);
 
   // Label override buttons (Normal / Suspicious / Malicious)

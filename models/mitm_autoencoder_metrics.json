@@ -1,0 +1,49 @@
+{
+  "model_name": "mitm_autoencoder",
+  "trained_at": "2026-04-28T20:23:08.604501",
+  "threshold": 0.3795279074669248,
+  "n_samples": 22713,
+  "accuracy": 0.6681636067450358,
+  "precision": 0.6381561417532641,
+  "recall": 0.6747746055597296,
+  "f1": 0.6559547176701511,
+  "roc_auc": 0.7531787536082881,
+  "pr_auc": 0.6538951263516961,
+  "false_positive_rate": 0.33767094902610856,
+  "false_negative_rate": 0.3252253944402705,
+  "confusion_matrix": {
+    "tn": 7991,
+    "fp": 4074,
+    "fn": 3463,
+    "tp": 7185
+  },
+  "classification_report": {
+    "0": {
+      "precision": 0.6976602060415575,
+      "recall": 0.6623290509738914,
+      "f1-score": 0.6795356945448361,
+      "support": 12065.0
+    },
+    "1": {
+      "precision": 0.6381561417532641,
+      "recall": 0.6747746055597296,
+      "f1-score": 0.6559547176701511,
+      "support": 10648.0
+    },
+    "accuracy": 0.6681636067450358,
+    "macro avg": {
+      "precision": 0.6679081738974109,
+      "recall": 0.6685518282668105,
+      "f1-score": 0.6677452061074935,
+      "support": 22713.0
+    },
+    "weighted avg": {
+      "precision": 0.6697643192568198,
+      "recall": 0.6681636067450358,
+      "f1-score": 0.6684807814218825,
+      "support": 22713.0
+    }
+  },
+  "dataset": "IoTID20",
+  "split": "30% held-out test"
+}

@@ -1,7 +1,8 @@
 import sqlite3
 from flask import g
+from settings import DB_PATH
 
-DATABASE = "sam_ads.db"
+DATABASE = str(DB_PATH)
 
 def get_db():
     if "db" not in g:
@@ -10,7 +11,12 @@ def get_db():
     return g.db
 
 def get_connection():
-    return get_db()   
+    try:
+        return get_db()
+    except RuntimeError:
+        conn = sqlite3.connect(DATABASE)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 def close_db(e=None):
     db = g.pop("db", None)
