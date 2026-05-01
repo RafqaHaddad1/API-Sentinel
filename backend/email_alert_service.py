@@ -72,7 +72,7 @@ def map_severity(predicted_class):
         return "normal"
 
 EMAIL_SENDER   = "sentinel.apisec@gmail.com"
-EMAIL_PASSWORD = "ngbwvyeyghuqfuoc"
+EMAIL_PASSWORD = "#####"
 
 SEVERITY_CONFIG = {
     "malicious": {
