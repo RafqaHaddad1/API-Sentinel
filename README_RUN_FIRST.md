@@ -9,6 +9,13 @@ pip install -r requirements.txt
 python run_system.py
 ```
 
+For testing you can run one of those files that contains mock requests
+```bash
+python Script/one_test.py
+python Script/tests_benign.py
+python Script/tests_attacks.py
+
+```
 Then open:
 
 - Dashboard: http://127.0.0.1:5000
@@ -34,6 +41,3 @@ Client request → FastAPI proxy on port 8000 → ML pipeline → SQLite DB → 
 - `models/` → trained model artifacts
 - `sam_ads.db` → one database used by both proxy and dashboard
 
-## Important rule
-
-Do not run the full original notebook as the app anymore. Use the notebook only for retraining and saving models.
