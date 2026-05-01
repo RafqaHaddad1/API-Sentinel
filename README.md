@@ -36,7 +36,7 @@ Modern APIs are prime targets for a growing range of cyber threats. API Sentinel
 | 🗄️ SQL Injection | Rule-based + ML pattern analysis |
 | 🌐 Cross-Site Scripting (XSS) | Signature matching + behavioral scoring |
 | 🕵️ Man-in-the-Middle (MITM) | Session/behavioral tracking |
-
+| 🌐 Command Injection | Rule based + ML pattern analysis |
 
 ---
 
